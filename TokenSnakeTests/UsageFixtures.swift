@@ -50,10 +50,18 @@ enum UsageFixtures {
         let root: URL
         let codexFile: URL
         let claudeFile: URL
+        let opencodeDirectory: URL
+        let cursorDirectory: URL
         var settings: LocalSyncSettings {
             var settings = LocalSyncSettings()
             settings.codexDirectory = root.appending(path: "codex").path
             settings.claudeDirectory = root.appending(path: "claude").path
+            settings.opencodeDirectory = opencodeDirectory.path
+            settings.cursorDirectory = cursorDirectory.path
+            // Tests opt in to OpenCode and Cursor so unrelated fixtures cannot
+            // read a user database or make a network request.
+            settings.opencodeEnabled = false
+            settings.cursorEnabled = false
             return settings
         }
         func remove() { try? FileManager.default.removeItem(at: root) }
@@ -63,10 +71,15 @@ enum UsageFixtures {
         let root = FileManager.default.temporaryDirectory.appending(path: "tokensnake-fixture-\(UUID().uuidString)")
         let codex = root.appending(path: "codex/sessions/2026/10/14/session.jsonl")
         let claude = root.appending(path: "claude/projects/project/subagents/agent.jsonl")
+        let opencode = root.appending(path: "opencode", directoryHint: .isDirectory)
+        let cursor = root.appending(path: "cursor", directoryHint: .isDirectory)
         for file in [codex, claude] {
             try FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
         }
-        return Workspace(root: root, codexFile: codex, claudeFile: claude)
+        try FileManager.default.createDirectory(at: opencode, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: cursor, withIntermediateDirectories: true)
+        return Workspace(root: root, codexFile: codex, claudeFile: claude,
+                         opencodeDirectory: opencode, cursorDirectory: cursor)
     }
 
     static func append(_ data: Data, to url: URL) throws {

@@ -14,6 +14,7 @@ extension PersistedStore {
                 && (0...entry.inputTokens).contains(entry.cachedTokens)
                 && (0...(entry.inputTokens - entry.cachedTokens)).contains(write)
                 && (0...write).contains(longWrite) && dateIsValid(entry.createdAt)
+                && (entry.reportedCost.map { $0.isFinite && (0...Double(limit)).contains($0) } ?? true)
         }
         func countersAreValid(_ counters: UsageCounters) -> Bool {
             [counters.input, counters.output, counters.cached, counters.write].allSatisfy { (0...limit).contains($0) }
@@ -26,7 +27,15 @@ extension PersistedStore {
                       && (0...limit).contains($0.quotaUsed) && (0...limit).contains($0.quotaLimit)
                       && dateIsValid($0.cycleAnchor) && ($0.quotaCycleStart.map(dateIsValid) ?? true)
               }), days.allSatisfy({ dateIsValid($0.day) }),
-              localSyncState?.lastSyncAt.map(dateIsValid) ?? true else { throw CocoaError(.fileReadCorruptFile) }
+              localSyncState?.lastSyncAt.map(dateIsValid) ?? true,
+              localSyncState?.opencodeCheckpoint.map({
+                  (0...10_000_000_000_000).contains($0.updatedThrough)
+                      && $0.size <= 1_000_000_000_000 && $0.databaseID.count <= 128
+              }) ?? true,
+              localSyncState?.cursorCheckpoint.map({
+                  $0.accountID.count <= 128 && dateIsValid($0.fetchedAt)
+                      && dateIsValid($0.lastAttemptAt)
+              }) ?? true else { throw CocoaError(.fileReadCorruptFile) }
         guard Set(entries.map(\.id)).count == entries.count,
               Set(entries.compactMap(\.importID)).count == entries.compactMap(\.importID).count else {
             throw CocoaError(.fileReadCorruptFile)

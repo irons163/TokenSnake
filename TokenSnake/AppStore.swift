@@ -305,10 +305,15 @@ final class AppStore {
         let generation = syncGeneration
         let configuration = settings.localSync
         do {
-            let result = try await usageImporter.scan(settings: configuration, checkpoints: localSyncState.checkpoints)
+            let result = try await usageImporter.scan(settings: configuration, checkpoints: localSyncState.checkpoints,
+                                                      opencodeCheckpoint: localSyncState.opencodeCheckpoint,
+                                                      cursorCheckpoint: localSyncState.cursorCheckpoint,
+                                                      forceRemote: force)
             guard !Task.isCancelled, generation == syncGeneration, configuration == settings.localSync else { return }
             mergeImported(result.entries)
             localSyncState.checkpoints = result.checkpoints
+            localSyncState.opencodeCheckpoint = result.opencodeCheckpoint
+            localSyncState.cursorCheckpoint = result.cursorCheckpoint
             localSyncState.lastSyncAt = .now
             syncStatuses = result.statuses
             refreshClock()
@@ -348,6 +353,7 @@ final class AppStore {
                 merged.cachedTokens = max(merged.cachedTokens, candidate.cachedTokens)
                 merged.cacheWriteTokens = max(merged.cacheWriteTokens ?? 0, candidate.cacheWriteTokens ?? 0)
                 merged.cacheWrite1hTokens = max(merged.cacheWrite1hTokens ?? 0, candidate.cacheWrite1hTokens ?? 0)
+                if let cost = candidate.reportedCost { merged.reportedCost = max(merged.reportedCost ?? 0, cost) }
                 if !candidate.model.contains("未知模型") { merged.model = candidate.model }
                 if candidate.importID == canonical { merged.createdAt = candidate.createdAt }
             }
@@ -365,6 +371,8 @@ final class AppStore {
     func reimportLocalUsage() async {
         guard !isSyncing else { return }
         localSyncState.checkpoints = [:]
+        localSyncState.opencodeCheckpoint = nil
+        localSyncState.cursorCheckpoint = nil
         localSyncState.ignoredImportIDs = []
         await syncLocalUsage(force: true)
     }

@@ -106,6 +106,9 @@ nonisolated struct TokenEntry: Identifiable, Codable, Hashable, Sendable {
     var importAliases: [String]?
     var cacheWriteTokens: Int?
     var cacheWrite1hTokens: Int?
+    // Provider-reported cost in USD, used when the source returns billing data
+    // (Cursor dashboard events) instead of an estimated API rate.
+    var reportedCost: Double?
 
     var totalTokens: Int { inputTokens + outputTokens }
 
@@ -122,7 +125,8 @@ nonisolated struct TokenEntry: Identifiable, Codable, Hashable, Sendable {
         importID: String? = nil,
         importAliases: [String]? = nil,
         cacheWriteTokens: Int? = nil,
-        cacheWrite1hTokens: Int? = nil
+        cacheWrite1hTokens: Int? = nil,
+        reportedCost: Double? = nil
     ) {
         self.id = id
         self.createdAt = createdAt
@@ -137,6 +141,7 @@ nonisolated struct TokenEntry: Identifiable, Codable, Hashable, Sendable {
         self.importAliases = importAliases
         self.cacheWriteTokens = cacheWriteTokens.map { min(max(0, $0), self.inputTokens - self.cachedTokens) }
         self.cacheWrite1hTokens = cacheWrite1hTokens.map { min(max(0, $0), self.cacheWriteTokens ?? 0) }
+        self.reportedCost = reportedCost.flatMap { $0.isFinite && $0 >= 0 ? $0 : nil }
     }
 }
 

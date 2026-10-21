@@ -13,7 +13,7 @@ struct LocalUsageImporterTests {
         let first = try await importer.scan(settings: workspace.settings, checkpoints: [:])
         #expect(Set(first.entries.map(\.id)).count == 2)
         #expect(Set(first.entries.compactMap(\.source)) == [.codex, .claudeCode])
-        #expect(first.statuses.allSatisfy { $0.state == .ready && $0.files == 1 })
+        #expect(first.statuses.filter { $0.state != .disabled }.allSatisfy { $0.state == .ready && $0.files == 1 })
         let second = try await importer.scan(settings: workspace.settings, checkpoints: first.checkpoints)
         #expect(second.entries.isEmpty)
         #expect(second.bytesRead == 0)
@@ -79,9 +79,11 @@ struct LocalUsageImporterTests {
         var settings = LocalSyncSettings()
         settings.codexDirectory = "/tmp/missing-tokensnake-\(UUID().uuidString)"
         settings.claudeEnabled = false
+        settings.opencodeDirectory = "/tmp/missing-tokensnake-\(UUID().uuidString)"
+        settings.opencodeEnabled = false
         let result = try await LocalUsageImporter().scan(settings: settings, checkpoints: [:])
         #expect(result.entries.isEmpty)
-        #expect(result.statuses.map(\.state) == [.missing, .disabled])
+        #expect(result.statuses.map(\.state) == [.missing, .disabled, .disabled, .disabled])
     }
 
     @Test func unreadableRootDoesNotBlockTheOtherSource() async throws {
@@ -138,7 +140,11 @@ struct LocalUsageImporterTests {
         var settings = LocalSyncSettings()
         #expect(settings.directory(for: .codex, environment: ["CODEX_HOME": "/tmp/codex-home"]).path == "/tmp/codex-home")
         #expect(settings.directory(for: .claudeCode, environment: ["CLAUDE_CONFIG_DIR": "/tmp/claude-home"]).path == "/tmp/claude-home")
+        #expect(settings.directory(for: .opencode, environment: ["XDG_DATA_HOME": "/tmp/xdg-data"]).path == "/tmp/xdg-data/opencode")
+        #expect(settings.directory(for: .opencode, environment: [:]).path.hasSuffix("/.local/share/opencode"))
         settings.codexDirectory = "/tmp/explicit"
         #expect(settings.directory(for: .codex, environment: ["CODEX_HOME": "/tmp/ignored"]).path == "/tmp/explicit")
+        settings.opencodeDirectory = "/tmp/explicit-opencode"
+        #expect(settings.directory(for: .opencode, environment: ["XDG_DATA_HOME": "/tmp/ignored"]).path == "/tmp/explicit-opencode")
     }
 }

@@ -2,9 +2,21 @@ import Foundation
 
 actor LocalUsageImporter {
     private let maximumLineBytes = 16 * 1_024 * 1_024
+    private let cursorTransport: CursorUsageImporter.Transport?
+    private let now: @Sendable () -> Date
 
-    func scan(settings: LocalSyncSettings, checkpoints: [String: UsageFileCheckpoint]) throws -> UsageScanResult {
-        var result = UsageScanResult(checkpoints: checkpoints)
+    init(cursorTransport: CursorUsageImporter.Transport? = nil,
+         now: @escaping @Sendable () -> Date = { Date() }) {
+        self.cursorTransport = cursorTransport
+        self.now = now
+    }
+
+    func scan(settings: LocalSyncSettings, checkpoints: [String: UsageFileCheckpoint],
+              opencodeCheckpoint: OpenCodeCheckpoint? = nil,
+              cursorCheckpoint: CursorCheckpoint? = nil,
+              forceRemote: Bool = false) async throws -> UsageScanResult {
+        var result = UsageScanResult(checkpoints: checkpoints, opencodeCheckpoint: opencodeCheckpoint,
+                                     cursorCheckpoint: cursorCheckpoint)
         for source in UsageSource.allCases {
             try Task.checkCancellation()
             let directory = settings.directory(for: source)
@@ -14,45 +26,141 @@ actor LocalUsageImporter {
                 result.statuses.append(status)
                 continue
             }
+            if source == .opencode {
+                try scanOpenCode(directory: directory, into: &result, status: &status)
+                result.statuses.append(status)
+                continue
+            }
+            if source == .cursor {
+                try await scanCursor(directory: directory, into: &result, status: &status, force: forceRemote)
+                result.statuses.append(status)
+                continue
+            }
             let roots = source == .codex
                 ? [directory.appending(path: "sessions"), directory.appending(path: "archived_sessions")]
                 : [directory.appending(path: "projects")]
-            var foundDirectory = false
-            for configuredRoot in roots {
-                // Moving the standard session directory to another disk is common.
-                let root = configuredRoot.resolvingSymlinksInPath()
-                var isDirectory: ObjCBool = false
-                guard FileManager.default.fileExists(atPath: root.path, isDirectory: &isDirectory), isDirectory.boolValue else { continue }
-                foundDirectory = true
-                // Attempt the read and handle its error. Permission preflights can
-                // block in access(2) even after macOS grants removable-volume access.
-                guard let enumerator = FileManager.default.enumerator(
-                    at: root, includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey],
-                    options: [.skipsHiddenFiles, .skipsPackageDescendants],
-                    errorHandler: { _, _ in status.unreadableFiles += 1; return true }
-                ) else { status.unreadableFiles += 1; continue }
-                for case let file as URL in enumerator {
-                    try Task.checkCancellation()
-                    let values = try? file.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey])
-                    if values?.isSymbolicLink == true { enumerator.skipDescendants(); continue }
-                    guard values?.isRegularFile == true, file.pathExtension.lowercased() == "jsonl" else { continue }
-                    status.files += 1
-                    let key = "\(source.rawValue):\(file.standardizedFileURL.path)"
-                    do {
-                        let scan = try read(file, source: source, checkpoint: result.checkpoints[key])
-                        result.entries.append(contentsOf: scan.entries)
-                        result.checkpoints[key] = scan.checkpoint
-                        result.bytesRead += scan.bytesRead
-                        status.skippedLines += scan.skippedLines
-                    } catch is CancellationError { throw CancellationError() }
-                    catch { status.unreadableFiles += 1 }
-                }
+            let collected = Self.collectFiles(in: roots)
+            status.unreadableFiles += collected.unreadable
+            for file in collected.files {
+                try Task.checkCancellation()
+                status.files += 1
+                let key = "\(source.rawValue):\(file.standardizedFileURL.path)"
+                do {
+                    let scan = try read(file, source: source, checkpoint: result.checkpoints[key])
+                    result.entries.append(contentsOf: scan.entries)
+                    result.checkpoints[key] = scan.checkpoint
+                    result.bytesRead += scan.bytesRead
+                    status.skippedLines += scan.skippedLines
+                } catch is CancellationError { throw CancellationError() }
+                catch { status.unreadableFiles += 1 }
             }
-            if !foundDirectory { status.state = .missing }
+            if !collected.foundRoot { status.state = .missing }
             else if status.unreadableFiles > 0 && status.files == 0 { status.state = .failed }
             result.statuses.append(status)
         }
         return result
+    }
+
+    private func scanOpenCode(directory: URL, into result: inout UsageScanResult,
+                              status: inout UsageSourceStatus) throws {
+        let database = OpenCodeUsageImporter.databaseURL(in: directory)
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: directory.path, isDirectory: &isDirectory),
+              isDirectory.boolValue,
+              FileManager.default.fileExists(atPath: database.path) else {
+            status.state = .missing
+            return
+        }
+        do {
+            let scan = try OpenCodeUsageImporter.scan(directory: directory, checkpoint: result.opencodeCheckpoint)
+            status.files = 1
+            status.skippedLines = scan.skippedRecords
+            result.entries.append(contentsOf: scan.entries)
+            result.opencodeCheckpoint = scan.checkpoint
+            result.bytesRead += scan.bytesRead
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            status.state = .failed
+            status.unreadableFiles += 1
+        }
+    }
+
+    private struct CollectedFiles {
+        var files: [URL] = []
+        var foundRoot = false
+        var unreadable = 0
+    }
+
+    private static func collectFiles(in roots: [URL]) -> CollectedFiles {
+        var collected = CollectedFiles()
+        for configuredRoot in roots {
+            // Moving the standard session directory to another disk is common.
+            let root = configuredRoot.resolvingSymlinksInPath()
+            var isDirectory: ObjCBool = false
+            guard FileManager.default.fileExists(atPath: root.path, isDirectory: &isDirectory),
+                  isDirectory.boolValue else { continue }
+            collected.foundRoot = true
+            // Attempt the read and handle its error. Permission preflights can
+            // block in access(2) even after macOS grants removable-volume access.
+            guard let enumerator = FileManager.default.enumerator(
+                at: root, includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey],
+                options: [.skipsHiddenFiles, .skipsPackageDescendants],
+                errorHandler: { _, _ in collected.unreadable += 1; return true }
+            ) else { collected.unreadable += 1; continue }
+            for case let file as URL in enumerator {
+                let values = try? file.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey])
+                if values?.isSymbolicLink == true { enumerator.skipDescendants(); continue }
+                guard values?.isRegularFile == true, file.pathExtension.lowercased() == "jsonl" else { continue }
+                collected.files.append(file)
+            }
+        }
+        return collected
+    }
+
+    private func scanCursor(directory: URL, into result: inout UsageScanResult,
+                            status: inout UsageSourceStatus, force: Bool) async throws {
+        let scan: CursorUsageImporter.Scan
+        do {
+            scan = try await CursorUsageImporter.scan(directory: directory, checkpoint: result.cursorCheckpoint,
+                                                      force: force, now: now(), transport: cursorTransport)
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            status.state = .failed
+            status.detail = "無法讀取 Cursor 資料"
+            return
+        }
+        result.cursorCheckpoint = scan.checkpoint
+        result.entries.append(contentsOf: scan.entries)
+        result.bytesRead += scan.bytesRead
+        status.skippedLines = scan.skippedRecords
+        switch scan.failure {
+        case .missingDatabase:
+            status.state = .missing
+            status.detail = "找不到 Cursor 資料庫"
+        case .notSignedIn:
+            status.state = .failed
+            status.detail = "Cursor 未登入，請先登入 Cursor App"
+        case .unauthorized:
+            status.state = .failed
+            status.detail = "Cursor 登入已過期，請重新登入後再試"
+        case .network:
+            status.state = .failed
+            status.detail = "無法連線 cursor.com，稍後會自動重試"
+        case .invalidResponse:
+            status.state = .failed
+            status.detail = "Cursor 回傳格式無法解析"
+        case nil:
+            status.state = .ready
+            if scan.throttled {
+                status.detail = "Cursor 於 5 分鐘內已同步，略過本次"
+            } else {
+                status.files = scan.entries.count
+                status.detail = scan.entries.isEmpty ? "已連線 Cursor，近 90 天沒有用量"
+                    : "已從 Cursor 匯入 \(scan.entries.count) 筆（近 90 天）"
+            }
+        }
     }
 
     private struct FileScan {

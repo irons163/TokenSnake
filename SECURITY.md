@@ -1,9 +1,19 @@
 # Security and privacy
 
-TokenSnake runs locally on macOS. The application has no network client, telemetry,
-cloud account connection, or runtime package download. It reads usage metadata from
-the configured Codex and Claude Code log directories. It does not intentionally
-open authentication files or persist conversation messages and tool output.
+TokenSnake runs locally on macOS. It has no telemetry, cloud account connection, or
+runtime package download. It reads usage metadata from the configured Codex, Claude
+Code, and OpenCode data directories. Conversation messages and tool output are not
+persisted, and the OpenCode database is opened read-only.
+
+The only network client is the optional **Cursor source**, which is off by default.
+It exists because Cursor stopped writing token counts to disk. When you switch it on
+and confirm the prompt, the app reads Cursor's own login token from
+`state.vscdb` (`cursorAuth/accessToken`), sends it to `cursor.com` to fetch your own
+usage events, and never logs or stores the token. The request carries only a date
+range; no usage counters, prompts, project paths, or conversation content are
+uploaded. Automatic sync queries at most once every five minutes, uses an ephemeral
+URL session with cookies disabled, and keeps the token in memory for the duration of
+the request.
 
 ## Local data
 
@@ -18,8 +28,12 @@ open authentication files or persist conversation messages and tool output.
   Invalid backups do not replace the current store. Invalid startup data is
   preserved for recovery before a fresh store can be written.
 - Snapshot reads are limited to 256 MiB. JSONL is read in chunks, with a 16 MiB
-  line limit. Invalid or oversized log lines are skipped. Unreadable sources are
-  reported without discarding existing usage.
+  line limit. Invalid or oversized log lines are skipped. OpenCode messages are
+  parsed from `opencode.db` without copying conversation content; only token
+  counters, model, timestamp, and the message identifier are retained. Unreadable
+  sources are reported without discarding existing usage. Cursor HTTP responses are
+  parsed in memory and are not written to disk; only usage counters, model, timestamp,
+  and the event identifier are retained.
 - Standard log-directory symlinks are supported; descendant symlinks are skipped.
   Only point the app at directories and backups you trust. The app is not sandboxed
   and uses the access permissions granted by macOS.

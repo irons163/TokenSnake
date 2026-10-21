@@ -19,6 +19,8 @@ targets:
       - path: TokenSnake
         excludes:
           - "**/.DS_Store"
+    dependencies:
+      - sdk: libsqlite3.tbd
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.tokensnake.TokenSnake
@@ -49,6 +51,7 @@ targets:
       - TokenSnakeTests
     dependencies:
       - target: TokenSnake
+      - sdk: libsqlite3.tbd
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.tokensnake.TokenSnakeTests

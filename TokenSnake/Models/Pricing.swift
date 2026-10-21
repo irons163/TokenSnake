@@ -92,6 +92,7 @@ enum Pricing {
     }
 
     static func estimatedCost(for entry: TokenEntry) -> Double? {
+        if let reported = entry.reportedCost { return reported }
         guard let spec = spec(provider: entry.provider, model: entry.model) else { return nil }
         let cachedTokens = min(max(0, entry.cachedTokens), max(0, entry.inputTokens))
         let writeTokens = min(max(0, entry.cacheWriteTokens ?? 0), max(0, entry.inputTokens - cachedTokens))

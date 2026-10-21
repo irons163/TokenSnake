@@ -25,7 +25,7 @@ struct StoreSecurityTests {
         #expect(try permissions(backup) == 0o600)
     }
 
-    @Test(arguments: ["cache", "cursor", "counter", "quota"])
+    @Test(arguments: ["cache", "cursor", "cursorCheckpoint", "counter", "quota", "opencode"])
     func poisonedBackupCannotReplaceExistingData(_ kind: String) throws {
         let workspace = try UsageFixtures.workspace()
         defer { workspace.remove() }
@@ -42,6 +42,10 @@ struct StoreSecurityTests {
             var account = Pricing.subscriptionTemplates[0]
             account.quotaUsed = Int.max
             bad.subscriptions = [account]
+        case "opencode":
+            bad.localSyncState = LocalSyncState(opencodeCheckpoint: OpenCodeCheckpoint(updatedThrough: -1))
+        case "cursorCheckpoint":
+            bad.localSyncState = LocalSyncState(cursorCheckpoint: CursorCheckpoint(accountID: String(repeating: "a", count: 200)))
         default:
             var checkpoint = UsageFileCheckpoint()
             if kind == "cursor" { checkpoint.offset = 100; checkpoint.size = 10 }

@@ -106,6 +106,17 @@ struct ModelsTests {
         #expect(settings.lastModel == "Cursor 包含額度")
     }
 
+    @Test func localSyncSettingsDecodeLegacyFields() throws {
+        let data = Data(#"{"enabled":true,"codexEnabled":false,"claudeEnabled":false,"codexDirectory":"/a","claudeDirectory":"/b"}"#.utf8)
+        let settings = try JSONDecoder().decode(LocalSyncSettings.self, from: data)
+        #expect(!settings.codexEnabled)
+        #expect(!settings.claudeEnabled)
+        #expect(settings.opencodeEnabled)
+        #expect(settings.opencodeDirectory.isEmpty)
+        #expect(!settings.cursorEnabled)
+        #expect(settings.cursorDirectory.isEmpty)
+    }
+
     @Test func appSettingsRoundTrip() throws {
         let original = AppSettings.default
         let data = try JSONEncoder().encode(original)

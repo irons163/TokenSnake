@@ -4,6 +4,7 @@ import AppKit
 struct LocalSyncSection: View {
     @Environment(AppStore.self) private var store
     @State private var confirmReimport = false
+    @State private var confirmCursor = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -49,15 +50,21 @@ struct LocalSyncSection: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .foregroundStyle(Theme.text)
+        .confirmationDialog("允許 Cursor 連線？", isPresented: $confirmCursor) {
+            Button("開啟並連線") { apply(.cursor, true) }
+            Button("取消", role: .cancel) {}
+        } message: {
+            Text("Cursor 已不再把 token 寫進本機資料庫。開啟後 TokenSnake 會讀取本機的 Cursor 登入憑證，連線 cursor.com 讀取你自己的用量；只會送出日期範圍，不會上傳用量、對話或路徑。")
+        }
         .confirmationDialog("重新匯入本機用量？", isPresented: $confirmReimport) {
             Button("重新匯入") { Task { await store.reimportLocalUsage() } }
         } message: {
-            Text("會重新掃描兩個來源，恢復先前刪除的匯入紀錄。現有紀錄會去重，手動紀錄會保留。")
+            Text("會重新掃描所有來源，恢復先前刪除的匯入紀錄。現有紀錄會去重，手動紀錄會保留。")
         }
     }
 
     private var hasEnabledSource: Bool {
-        store.settings.localSync.codexEnabled || store.settings.localSync.claudeEnabled
+        UsageSource.allCases.contains { store.settings.localSync.isEnabled($0) }
     }
 
     private func sourceRow(_ source: UsageSource) -> some View {
@@ -71,10 +78,11 @@ struct LocalSyncSection: View {
                     Toggle(source.label, isOn: Binding(
                         get: { store.settings.localSync.isEnabled(source) },
                         set: { value in
-                            store.updateSyncSettings {
-                                if source == .codex { $0.codexEnabled = value } else { $0.claudeEnabled = value }
+                            if source == .cursor, value {
+                                confirmCursor = true
+                            } else {
+                                apply(source, value)
                             }
-                            if store.settings.localSync.enabled { Task { await store.syncLocalUsage() } }
                         }
                     ))
                     .font(Typography.body(12))
@@ -86,6 +94,11 @@ struct LocalSyncSection: View {
                 Text(enabled ? (status?.message ?? "尚未掃描") : "已停用")
                     .font(Typography.caption())
                     .foregroundStyle(status?.state == .failed ? Theme.warning : Theme.text2)
+                if source == .cursor {
+                    Label("Cursor 已不寫入本機 token；啟用後會連線 cursor.com", systemImage: "wifi")
+                        .font(Typography.caption(10))
+                        .foregroundStyle(Theme.warning)
+                }
                 Text(directory.path)
                     .font(.system(size: 10, design: .monospaced))
                     .foregroundStyle(Theme.text3)
@@ -96,15 +109,18 @@ struct LocalSyncSection: View {
                     Button("選擇資料目錄…") { chooseDirectory(source) }
                     Spacer()
                     Button("使用預設") {
-                        store.updateSyncSettings {
-                            if source == .codex { $0.codexDirectory = "" } else { $0.claudeDirectory = "" }
-                        }
+                        store.updateSyncSettings { $0.setDirectory("", for: source) }
                         if store.settings.localSync.enabled { Task { await store.syncLocalUsage() } }
                     }
                 }
                 .font(Typography.caption())
             }
         }
+    }
+
+    private func apply(_ source: UsageSource, _ value: Bool) {
+        store.updateSyncSettings { $0.setEnabled(value, for: source) }
+        if value, store.settings.localSync.enabled { Task { await store.syncLocalUsage() } }
     }
 
     private func chooseDirectory(_ source: UsageSource) {
@@ -114,11 +130,14 @@ struct LocalSyncSection: View {
         panel.allowsMultipleSelection = false
         panel.showsHiddenFiles = true
         panel.directoryURL = store.settings.localSync.directory(for: source)
-        panel.message = source == .codex ? "選擇包含 sessions 的 Codex 資料目錄" : "選擇包含 projects 的 Claude Code 資料目錄"
+        panel.message = switch source {
+        case .codex: "選擇包含 sessions 的 Codex 資料目錄"
+        case .claudeCode: "選擇包含 projects 的 Claude Code 資料目錄"
+        case .opencode: "選擇包含 opencode.db 的 OpenCode 資料目錄"
+        case .cursor: "選擇包含 User/globalStorage 的 Cursor 資料目錄"
+        }
         if panel.runModal() == .OK, let url = panel.url {
-            store.updateSyncSettings {
-                if source == .codex { $0.codexDirectory = url.path } else { $0.claudeDirectory = url.path }
-            }
+            store.updateSyncSettings { $0.setDirectory(url.path, for: source) }
             if store.settings.localSync.enabled { Task { await store.syncLocalUsage() } }
         }
     }

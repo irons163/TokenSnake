@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Independently reconcile a fresh App snapshot against its committed JSONL cursors.
+"""Independently reconcile a fresh App snapshot against its committed source cursors.
 
 Reads local usage metadata only; prints aggregate counts. Use a snapshot without
 manually hidden imports, such as one created with --data-directory for verification.
@@ -7,6 +7,8 @@ manually hidden imports, such as one created with --data-directory for verificat
 import argparse
 import collections
 import json
+import os
+import sqlite3
 from pathlib import Path
 
 
@@ -17,12 +19,50 @@ def counters(usage, source):
     return input_tokens, usage.get("output_tokens", 0), cached, write
 
 
+def opencode_responses(store):
+    state = store.get("localSyncState") or {}
+    cursor = state.get("opencodeCheckpoint")
+    if not cursor:
+        return {}
+    settings = (store.get("settings") or {}).get("localSync") or {}
+    configured = settings.get("opencodeDirectory") or ""
+    if configured:
+        database = Path(configured).expanduser() / "opencode.db"
+    else:
+        base = os.environ.get("XDG_DATA_HOME") or str(Path.home() / ".local" / "share")
+        database = Path(base).expanduser() / "opencode" / "opencode.db"
+    connection = sqlite3.connect(f"file:{database}?mode=ro", uri=True)
+    responses = {}
+    try:
+        rows = connection.execute(
+            "SELECT id, data FROM message "
+            "WHERE time_updated > 0 AND time_updated <= ? AND json_extract(data, '$.role') = 'assistant'",
+            (cursor["updatedThrough"],),
+        )
+        for identity, data in rows:
+            record = json.loads(data)
+            tokens = record.get("tokens") or {}
+            cache = tokens.get("cache") or {}
+            read = int(cache.get("read") or 0)
+            write = int(cache.get("write") or 0)
+            usage = (int(tokens.get("input") or 0) + read + write,
+                     int(tokens.get("output") or 0) + int(tokens.get("reasoning") or 0),
+                     read, write)
+            if not (usage[0] or usage[1]):
+                continue
+            previous = responses.get(identity, (0, 0, 0, 0))
+            responses[identity] = tuple(max(a, b) for a, b in zip(previous, usage))
+    finally:
+        connection.close()
+    return responses
+
+
 def reconcile(path):
     store = json.loads(path.read_text())
     state = store["localSyncState"]
     if state.get("ignoredImportIDs"):
         raise ValueError("Use a fresh snapshot without hidden imports.")
-    responses = {"codex": {}, "claudeCode": {}}
+    responses = {"codex": {}, "claudeCode": {}, "opencode": opencode_responses(store)}
     legacy_responses = {}
     mirrored_legacy = set()
     for key, cursor in state["checkpoints"].items():

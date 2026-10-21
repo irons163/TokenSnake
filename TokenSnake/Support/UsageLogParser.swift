@@ -95,7 +95,7 @@ nonisolated enum UsageLogParser {
                       write: try count(raw, "cache_write_input_tokens"), output: try count(raw, "output_tokens"))
     }
 
-    private static func count(_ raw: [String: Any], _ key: String) throws -> Int {
+    static func count(_ raw: [String: Any], _ key: String) throws -> Int {
         guard let value = raw[key], !(value is NSNull) else { return 0 }
         guard let number = value as? NSNumber, CFGetTypeID(number) != CFBooleanGetTypeID(),
               number.doubleValue.isFinite, number.doubleValue >= 0,
@@ -119,8 +119,8 @@ nonisolated enum UsageLogParser {
             ?? (try? Date.ISO8601FormatStyle().parse(string))
     }
 
-    private static func entry(key: String, source: UsageSource, model: String, date: Date,
-                              usage: UsageCounters, provider: AIProvider, longWrite: Int = 0) -> TokenEntry? {
+    static func entry(key: String, source: UsageSource, model: String, date: Date,
+                      usage: UsageCounters, provider: AIProvider, longWrite: Int = 0) -> TokenEntry? {
         guard usage.hasUsage else { return nil }
         let digest = Array(SHA256.hash(data: Data(key.utf8)))
         let id = UUID(uuid: (digest[0], digest[1], digest[2], digest[3], digest[4], digest[5],

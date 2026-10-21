@@ -1,6 +1,6 @@
 # TokenSnake
 
-macOS 選單列上的 AI 用量儀表板，以 SwiftUI 製作。自動讀取本機 Codex 與 Claude Code 用量，讓真實使用的 tokens 餵養小蛇、累積成長，也可選擇手動管理訂閱月費。
+macOS 選單列上的 AI 用量儀表板，以 SwiftUI 製作。自動讀取本機 Codex、Claude Code 與 OpenCode 用量，並可選擇連線 Cursor 讀取雲端用量，讓真實使用的 tokens 餵養小蛇、累積成長，也可手動管理訂閱月費。
 
 ## 功能
 
@@ -24,26 +24,32 @@ Lv.1 從蛇蛋開始，第一筆用量即可孵化。升級門檻為 `1,000,000 
 | --- | --- | --- |
 | Codex | `CODEX_HOME`，未設定時為 `~/.codex` | `sessions/**/*.jsonl` 與 `archived_sessions/**/*.jsonl` |
 | Claude Code | `CLAUDE_CONFIG_DIR`，未設定時為 `~/.claude` | `projects/**/*.jsonl`，包含子代理紀錄 |
+| OpenCode | `XDG_DATA_HOME/opencode`，未設定時為 `~/.local/share/opencode` | `opencode.db` 的 assistant 訊息（唯讀） |
+| Cursor | `~/Library/Application Support/Cursor` | **預設關閉。** 讀取本機 Cursor 登入憑證，連線 `cursor.com` 取得近 90 天的用量事件 |
 
-從 Finder 開啟 App 時，不一定會繼承終端機的環境變數；可在設定直接選擇包含 `sessions` 或 `projects` 的資料目錄。標準紀錄目錄透過符號連結移到外接磁碟也可讀取。找不到目錄、權限不足或無效資料會顯示在各來源狀態中。
+從 Finder 開啟 App 時，不一定會繼承終端機的環境變數；可在設定直接選擇包含 `sessions`、`projects` 或 `opencode.db` 的資料目錄。標準紀錄目錄透過符號連結移到外接磁碟也可讀取。找不到目錄、權限不足或無效資料會顯示在各來源狀態中。
 
 首次讀取外接磁碟或受保護目錄時，macOS 可能顯示存取提示；請在系統提示中允許 TokenSnake 讀取紀錄所在位置。等待系統授權時會維持「正在同步」狀態。重新建置的本機 ad-hoc 版本可能需要重新授權。
 
-同步只保留用量、模型、時間與去重識別，對話內容、工具輸出與認證檔不會存入 TokenSnake。App 沒有網路請求與雲端帳號。
+同步只保留用量、模型、時間與去重識別，對話內容、工具輸出與認證檔不會存入 TokenSnake。除 Cursor 外，App 沒有網路請求或雲端帳號；Cursor 來源預設關閉，只有在你確認後才會向 `cursor.com` 讀取你自己的用量。
 
 - Codex 以回應識別碼追蹤逐次用量，並對應舊版累計事件，避免壓縮對話、分叉歷史與封存副本重複計數。
 - Claude Code 以訊息識別碼合併串流與重複內容區塊；輸入包括一般輸入、快取讀取及快取寫入，推理 tokens 不會再次加進輸出。
+- OpenCode 以資料庫中的訊息識別碼合併串流更新；輸入包括一般輸入、快取讀取及快取寫入，推理 tokens 計入輸出。供應商依 OpenCode 的 provider 與模型名稱對應，未收錄的模型仍會計入 tokens。
+- Cursor 已不再把 token 寫進本機資料庫，因此改用 Cursor 儀表板自己的用量介面：讀取本機 `state.vscdb` 的登入憑證，只送出日期範圍，取回近 90 天的用量事件，並以事件識別碼去重。開啟時會先顯示提示；自動同步每 5 分鐘最多查詢一次，「立即同步」可手動重試。
 - 讀取游標與用量一起保存，重啟後接續讀取。尚未寫完的一行會等下一次掃描；檔案截斷或替換後重新解析並去重。
 - 刪除匯入紀錄會將它隱藏，後續同步不會恢復；「重新匯入」會恢復隱藏項目。停用來源會保留已匯入的歷史。
 - 「清除所有紀錄」會暫停自動同步。還原備份會先保留原資料，並暫停同步，方便核對後再開啟。
 
-本機同步不包含 ChatGPT 網頁、Claude 網頁、Cursor 或帳戶的剩餘訂閱額度查詢；這些帳號仍可手動管理。
+本機同步不包含 ChatGPT 網頁、Claude 網頁的用量或任何帳戶的剩餘訂閱額度查詢；Cursor 需個別開啟，其餘帳號仍可手動管理。
 
 ## 費用
 
 費用為內建靜態 **標準 API 費率的參考估算**，不是訂閱帳單或實際扣款。已處理快取讀取、Claude 的 5 分鐘／1 小時快取寫入，以及已收錄 GPT-5.5／5.6／6 模型的大型提示門檻；不包含 Fast／Ultrafast、區域加價、工具費用或帳戶折扣。
 
 「費率未收錄」表示 App 的內建價目表尚未對應該模型，不代表供應商沒有公開價格，也不代表免費。這些紀錄仍會計入 tokens，總覽列出待補費率筆數與已知估算；選單列金額後的 `+` 表示總額尚不完整。模型名稱不會被猜成其他模型。參考價目表位於 `TokenSnake/Models/Pricing.swift`。更新價目表後會直接重新計算既有紀錄，不需要重新匯入。
+
+Cursor 事件會帶回 Cursor 帳單的實際費用（`totalCents`），App 直接顯示該金額，不用內建費率推估；若 Cursor 未回傳費用才顯示「費率未收錄」。
 
 Codex／Claude 新增費率核對於 2026/10/14：[GPT-6.1 Sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol)、[GPT-6 Astra](https://developers.openai.com/api/docs/models/gpt-6-astra)、[Claude 快取費率](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)。其餘內建範本需按實際使用情況更新。
 
@@ -104,4 +110,4 @@ python3 Scripts/VerifyUsageSnapshot.py /tmp/tokensnake-verification/store.json
 
 `--show-dashboard` 會額外開啟獨立驗證視窗，與選單列面板同時存在。驗證請使用隔離資料目錄，完成後結束驗證 App；正式使用以 `open build/TokenSnake.app` 啟動，不附加此參數。
 
-核對腳本依快照已提交的讀取游標，獨立重新加總兩個來源的回應數與輸入、輸出、快取讀取及寫入 tokens；只輸出總數。請使用尚未隱藏匯入紀錄的新快照。
+核對腳本依快照已提交的讀取游標，獨立重新加總 Codex、Claude Code 與 OpenCode 的回應數與輸入、輸出、快取讀取及寫入 tokens；只輸出總數。請使用尚未隱藏匯入紀錄的新快照。
