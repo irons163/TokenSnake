@@ -5,7 +5,7 @@
 - 原始圖像：`TokenSnakeIcon-v4.png`（內建 image_gen 產生，保留 alpha）
 - App 資產：`TokenSnake/Assets.xcassets/AppIcon.appiconset`
 - 重新產生所有 macOS 尺寸：在專案根目錄執行 `swift Scripts/GenerateIcon.swift`
-- 選單列小蛇圖示仍由 SwiftUI 繪製，維持系統尺寸下的清晰度。
+- 選單列使用 `TokenSnake/Support/MenuBarSnakeArtwork.swift` 的 18pt 單色範本圖示，沿用 S 形小蛇與六角 T token。向量繪製後提供 1x、2x、3x 圖像，眼睛與 T 使用透明留白，隨系統切換黑白並適應深淺色選單列。
 
 ## 最終提示詞
 

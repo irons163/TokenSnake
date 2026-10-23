@@ -57,6 +57,7 @@
 		F2E7CD1D40C69A8B0C5CF22D /* CursorFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9408165031DADD1B315147F0 /* CursorFixtures.swift */; };
 		F370E46162C4548BB018B7C3 /* StoreHarness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A0E8FB9DB5F314F452A16A5 /* StoreHarness.swift */; };
 		F5E97DBBE4931518E74D4671 /* MenuBarLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A428FF3E569655173E1B15 /* MenuBarLabel.swift */; };
+		F8B4AD9AC32A62E3B10CA5A8 /* MenuBarSnakeArtwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC27E334389F97D860592E5A /* MenuBarSnakeArtwork.swift */; };
 		FCA982D57584475CFAED5510 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E26780CAE24FD120B65368E /* Theme.swift */; };
 		FE3E4AA584DB8390526BCF3B /* Pricing.swift in Sources */ = {isa = PBXBuildFile; fileRef = A291073752E737AF4BA2C237 /* Pricing.swift */; };
 /* End PBXBuildFile section */
@@ -114,6 +115,7 @@
 		A4E6503ED428641EBC3E9DC2 /* SnakePane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnakePane.swift; sourceTree = "<group>"; };
 		A833E9C7CBC1E9E842BE6241 /* TestHostExit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHostExit.swift; sourceTree = "<group>"; };
 		AA8E494AAC525D5A6B5D4EAD /* UpdateSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateSettingsSection.swift; sourceTree = "<group>"; };
+		AC27E334389F97D860592E5A /* MenuBarSnakeArtwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarSnakeArtwork.swift; sourceTree = "<group>"; };
 		B0E9EB82FDD066D0396C36DA /* AppStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStoreTests.swift; sourceTree = "<group>"; };
 		B8603EC700373E0106230D38 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
 		C04B9D473CEB196DCF315E29 /* SubscriptionSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionSettingsSection.swift; sourceTree = "<group>"; };
@@ -181,6 +183,7 @@
 				B8603EC700373E0106230D38 /* Formatters.swift */,
 				861761312F6350E25B2786F4 /* LaunchAtLogin.swift */,
 				F7DB926E39FF5ABF690F611A /* LocalUsageImporter.swift */,
+				AC27E334389F97D860592E5A /* MenuBarSnakeArtwork.swift */,
 				4F4012D2CCBB3F821D966643 /* OpenCodeUsageImporter.swift */,
 				A2CAFD75BF815AAA55DF7B05 /* StadiumGeometry.swift */,
 				F0164484E2E284C2CA4F78D9 /* StoreValidation.swift */,
@@ -410,6 +413,7 @@
 				2173C73209A45DB59DF4137B /* LocalUsageImporter.swift in Sources */,
 				54046C3F11971A8CFEB2E6B9 /* ManualEntrySheet.swift in Sources */,
 				F5E97DBBE4931518E74D4671 /* MenuBarLabel.swift in Sources */,
+				F8B4AD9AC32A62E3B10CA5A8 /* MenuBarSnakeArtwork.swift in Sources */,
 				86365C4C49A37A56C0D98EA3 /* ModelUsageGroup.swift in Sources */,
 				06E583C1BC7C1DDB9287FCBF /* ModelUsageGroupRow.swift in Sources */,
 				C180B224B083F45E81928601 /* Models.swift in Sources */,
@@ -562,7 +566,7 @@
 				CODE_SIGN_ENTITLEMENTS = TokenSnake/TokenSnake.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -576,7 +580,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.2;
+				MARKETING_VERSION = 1.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = app.tokensnake.TokenSnake;
 				PRODUCT_NAME = TokenSnake;
 				SDKROOT = macosx;
@@ -594,7 +598,7 @@
 				CODE_SIGN_ENTITLEMENTS = TokenSnake/TokenSnake.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -608,7 +612,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.2;
+				MARKETING_VERSION = 1.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = app.tokensnake.TokenSnake;
 				PRODUCT_NAME = TokenSnake;
 				SDKROOT = macosx;
