@@ -12,7 +12,7 @@ struct ModelUsageGroupRow: View {
                 isExpanded.toggle()
             } label: {
                 HStack(spacing: 8) {
-                    ProviderBadge(provider: group.id.provider)
+                    ProviderBadge(provider: group.id.provider, model: group.id.model)
                     VStack(alignment: .leading, spacing: 3) {
                         Text(group.id.model)
                             .font(Typography.body(12))

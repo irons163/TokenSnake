@@ -66,7 +66,7 @@ struct SnakePane: View {
                                 .foregroundStyle(Theme.text2)
                             ForEach(recent) { entry in
                                 HStack(spacing: 7) {
-                                    ProviderBadge(provider: entry.provider)
+                                    ProviderBadge(provider: entry.provider, model: entry.model)
                                     VStack(alignment: .leading, spacing: 1) {
                                         Text(entry.model)
                                             .font(Typography.caption())

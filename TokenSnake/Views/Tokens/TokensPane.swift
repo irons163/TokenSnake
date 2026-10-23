@@ -254,7 +254,7 @@ struct TokenRow: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            ProviderBadge(provider: entry.provider)
+            ProviderBadge(provider: entry.provider, model: entry.model)
             VStack(alignment: .leading, spacing: 1) {
                 Text(showsModel ? entry.model : (entry.source?.label ?? "手動"))
                     .font(Typography.body(12))
@@ -284,18 +284,6 @@ struct TokenRow: View {
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(Theme.surface.opacity(0.9))
         )
-    }
-}
-
-struct ProviderBadge: View {
-    var provider: AIProvider
-
-    var body: some View {
-        Image(systemName: provider.symbol)
-            .font(.system(size: 10, weight: .bold))
-            .foregroundStyle(Theme.ink)
-            .frame(width: 22, height: 22)
-            .background(Circle().fill(provider.tint))
     }
 }
 

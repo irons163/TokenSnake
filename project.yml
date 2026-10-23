@@ -43,8 +43,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.tokensnake.TokenSnake
         PRODUCT_NAME: TokenSnake
-        MARKETING_VERSION: "1.4.3"
-        CURRENT_PROJECT_VERSION: "15"
+        MARKETING_VERSION: "1.4.4"
+        CURRENT_PROJECT_VERSION: "16"
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_LSUIElement: YES
         INFOPLIST_KEY_CFBundleDisplayName: TokenSnake
