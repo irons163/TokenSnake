@@ -67,11 +67,10 @@ Codex、Claude Code 依內建 API 費率估算；OpenCode 優先採用來源提�
 
 ## 資料與備份
 
-資料位於 `~/Library/Application Support/TokenSnake/store.json`，舊版資料會自動讀取。退出 App 時會立即保存。寫入失敗會在介面提示；無法讀取的資料會先保留 `.corrupt-*.json` 副本。備份還原前，原檔會保留為 `.backup-*.json`。
+資料儲存在 `~/Library/Application Support/TokenSnake/store.json`。
 
-設定中可匯出 JSON 備份，再用「還原資料備份」恢復。清除或載入示範資料前，建議先匯出。
-
-App 對啟動資料與還原備份使用相同驗證，拒絕異常 tokens、快取、額度與同步游標。單個快照讀取上限為 256 MiB；資料及備份使用僅擁有者可讀寫的權限。備份內含目錄路徑及用量資訊，請保留在私人位置。公開範圍與回報方式見 [SECURITY.md](SECURITY.md)。
+- **匯出**：開啟齒輪設定，點選「匯出資料備份…」，選擇位置儲存 JSON 備份。
+- **還原**：開啟齒輪設定，點選「還原資料備份…」，選擇先前匯出的 JSON 檔並確認。
 
 ## 從原始碼建置
 
