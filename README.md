@@ -1,14 +1,50 @@
-# TokenSnake
+<p align="center">
+  <img src="TokenSnake/Assets.xcassets/AppIcon.appiconset/icon_128@2x.png" width="112" height="112" alt="TokenSnake：小蛇環抱 T token">
+</p>
+
+<h1 align="center">TokenSnake</h1>
+
+<p align="center">在 macOS 選單列追蹤 AI 用量，讓每一筆 tokens 餵養小蛇。</p>
+
+<p align="center">
+  <a href="https://github.com/irons163/TokenSnake/releases/latest">下載最新版</a> ·
+  <a href="docs/RELEASING.md">發布指南</a> ·
+  <a href="SECURITY.md">隱私與安全</a>
+</p>
 
 macOS 選單列上的 AI 用量儀表板，以 SwiftUI 製作。自動讀取本機 Codex、Claude Code 與 OpenCode 用量，並可選擇連線 Cursor 讀取雲端用量，讓真實使用的 tokens 餵養小蛇、累積成長，也可手動管理訂閱月費。
 
+## 畫面
+
+| 用量總覽 | 小蛇成長 |
+| :---: | :---: |
+| <img src="docs/images/usage.png" width="360" alt="用量頁面：今日與本月 tokens、14 天趨勢及依模型分組的費用估算"> | <img src="docs/images/snake.png" width="360" alt="小蛇頁面：累積 tokens、等級、升級進度與今日進食"> |
+
+## 安裝
+
+需要 **macOS 14 或更新版本**，支援 Apple Silicon 與 Intel。直接安裝 Release 版本即可使用。
+
+1. 前往 [下載最新版](https://github.com/irons163/TokenSnake/releases/latest)，依 Mac 晶片選擇 DMG：
+
+   | Mac 晶片 | 下載檔案 |
+   | --- | --- |
+   | Apple Silicon（M 系列） | `TokenSnake-<版本>-apple-silicon.dmg` |
+   | Intel | `TokenSnake-<版本>-intel.dmg` |
+
+2. 開啟 DMG，將 `TokenSnake.app` 拖進 **Applications**。
+3. 開啟 App，點選選單列的小蛇即可查看用量。App 不會出現在 Dock。
+4. 若紀錄位於外接磁碟或受保護目錄，依 macOS 提示允許讀取，或到齒輪設定選擇紀錄目錄。
+
+正式 Release 已使用 Developer ID 簽章並通過 Apple 公證。安裝後可從齒輪設定的「App 更新」檢查新版；預設每小時自動檢查，不自動下載。詳見 [App 內更新](#app-內更新)。
+
 ## 功能
 
+- **選單列**：與 App icon 一致的 S 形小蛇及 T token，使用 18pt 單色圖示適應深淺色背景。可選擇顯示小蛇等級、今日 tokens、今日／本月花費或最近續費。
 - **用量**：啟動後掃描歷史紀錄，之後每 30 秒增量更新。顯示今日、本月、最近 14 天與來源篩選；清單依模型分組，彙總全部紀錄的筆數、tokens 與估算費用，點擊可展開單筆明細。可精確輸入 tokens，或用快速估算按鈕手動記錄。
 - **小蛇**：每筆用量自動進食，累積 tokens 決定等級與身長。顯示升級進度、今日進食、最近食物與 13 週用量熱圖；新用量出現時播放吃食物的動畫。休息會保留成長，預算及模型費率不影響餵養。
 - **設定**：選擇來源、變更紀錄目錄、立即同步、重新匯入、預算、選單列顯示、登入時啟動，以及 JSON 備份匯出／還原。「訂閱管理」預設收合，可選填月費與續費日，保留範本、自訂帳號、編輯與手動額度管理。進入新月度週期後會重設已用額度；範本請依實際帳單調整。
 
-開啟 `TokenSnake.app`，點選選單列的小蛇即可使用。主介面只有「用量／小蛇」，訂閱資料在齒輪設定的「訂閱管理」。App 不會出現在 Dock。
+主介面分為「用量／小蛇」，訂閱資料在齒輪設定的「訂閱管理」。
 
 ## 自動餵養與成長
 
@@ -80,13 +116,13 @@ Codex／Claude 新增費率核對於 2026/10/14：[GPT-6.1 Sol](https://develope
 
 App 對啟動資料與還原備份使用相同驗證，拒絕異常 tokens、快取、額度與同步游標。單個快照讀取上限為 256 MiB；資料及備份使用僅擁有者可讀寫的權限。備份內含目錄路徑及用量資訊，請保留在私人位置。公開範圍與回報方式見 [SECURITY.md](SECURITY.md)。
 
-## 需求
+## 從原始碼建置
+
+開發環境需求：
 
 - macOS 14 或更新版本
 - Xcode 26 或更新版本（Swift 6 與明確的並行隔離）
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen)
-
-## 建置
 
 ```bash
 brew install xcodegen
@@ -116,7 +152,7 @@ Actions 的 **Release DMG** 可手動試建 Apple Silicon／Intel 的 DMG、ZIP�
 
 Apple Silicon／Intel 分別讀取 GitHub 最新穩定 Release 的 `appcast-arm64.xml`／`appcast-x86_64.xml`。Appcast 與 DMG 均以 TokenSnake 專用 Ed25519 金鑰簽署，下載後先驗證再解壓縮；App、Sparkle 輔助程式與 DMG 也使用 Developer ID 簽章並通過 Apple 公證。安裝前及結束 App 時會保存資料，用量與小蛇成長留在原資料目錄。
 
-1.3.1 及更舊版本尚未包含更新器，需先手動安裝 1.4.0 一次，後續版本即可透過 App 內更新。從唯讀 DMG 執行時請先將 App 拖至 Applications。測試模式及 `--data-directory` 隔離驗證模式不會啟動更新器，避免測試替換正在使用的 App。
+1.3.1 及更舊版本尚未包含更新器，需先手動安裝最新版本，後續即可透過 App 內更新。從唯讀 DMG 執行時請先將 App 拖至 Applications。測試模式及 `--data-directory` 隔離驗證模式不會啟動更新器，避免測試替換正在使用的 App。
 
 1.4.1 補齊 Intel 套件內的預設更新來源標記，並在發布前強制核對每個架構的 feed、公鑰及必要驗證設定；建議直接安裝最新版本。
 
