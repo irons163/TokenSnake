@@ -15,7 +15,7 @@ case "$ts_mode" in ad-hoc|developer-id) ;; *) echo 'Invalid signing mode' >&2; e
 
 if [[ "$ts_mode" == developer-id ]]; then
   for ts_name in APPLE_CERTIFICATE_P12_BASE64 APPLE_CERTIFICATE_PASSWORD APPLE_TEAM_ID \
-    APPLE_API_KEY_ID APPLE_API_ISSUER_ID APPLE_API_PRIVATE_KEY_BASE64; do
+    APPLE_API_KEY_ID APPLE_API_ISSUER_ID APPLE_API_PRIVATE_KEY_BASE64 SPARKLE_PRIVATE_KEY; do
     if [[ -z "${!ts_name:-}" ]]; then echo "Missing required secret: $ts_name" >&2; exit 1; fi
   done
   [[ "$APPLE_TEAM_ID" =~ ^[A-Z0-9]{10}$ ]] || { echo 'Invalid APPLE_TEAM_ID' >&2; exit 1; }
@@ -136,6 +136,18 @@ staple_and_validate() {
 
 if [[ "$ts_mode" == developer-id ]]; then
   echo 'Signing and notarizing application'
+  # Sparkle's nested code must use the same Developer ID as its host application.
+  ts_framework="$ts_app/Contents/Frameworks/Sparkle.framework"
+  [[ -d "$ts_framework" ]] || { echo 'Sparkle framework is missing' >&2; exit 1; }
+  while IFS= read -r -d '' ts_nested; do
+    codesign --force --keychain "$ts_keychain" --sign "$ts_identity" --timestamp --options runtime \
+      --preserve-metadata=identifier,entitlements "$ts_nested"
+  done < <(find "$ts_framework/Versions" -type f \( -perm -111 -o -name '*.dylib' \) -print0)
+  while IFS= read -r -d '' ts_nested; do
+    codesign --force --keychain "$ts_keychain" --sign "$ts_identity" --timestamp --options runtime \
+      --preserve-metadata=identifier,entitlements "$ts_nested"
+  done < <(find "$ts_framework/Versions" -depth -type d \( -name '*.xpc' -o -name '*.app' \) -print0)
+  codesign --force --keychain "$ts_keychain" --sign "$ts_identity" --timestamp --options runtime "$ts_framework"
   codesign --force --keychain "$ts_keychain" --sign "$ts_identity" --timestamp --options runtime \
     --entitlements TokenSnake/TokenSnake.entitlements "$ts_app"
   ditto -c -k --sequesterRsrc --keepParent "$ts_app" "$ts_work/notary-app.zip"
@@ -170,8 +182,23 @@ result={'version':version,'marketingVersion':info['CFBundleShortVersionString'],
         'notarized':mode=='developer-id','commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()}
 Path(path).write_text(json.dumps(result,indent=2)+'\n')
 PY
+ts_feed_files=()
+if [[ "$ts_mode" == developer-id ]]; then
+  ts_tools="$(python3 - "$ts_work/DerivedData/SourcePackages/artifacts" <<'PY'
+from pathlib import Path
+import sys
+tools=list(Path(sys.argv[1]).rglob('bin/generate_appcast'))
+if len(tools)!=1: raise SystemExit('Expected one Sparkle appcast generator in resolved package artifacts')
+print(tools[0].parent)
+PY
+)"
+  SPARKLE_TOOLS_DIR="$ts_tools" UPDATE_DMG="$ts_dist/$ts_stem.dmg" \
+    UPDATE_VERSION="$ts_version" UPDATE_ARCH="$ts_arch" UPDATE_OUTPUT="$ts_dist/appcast-$ts_arch.xml" \
+    bash Scripts/generate-update-feed.sh
+  ts_feed_files=("appcast-$ts_arch.xml")
+fi
 (
   cd "$ts_dist"
-  shasum -a 256 "$ts_stem.dmg" "$ts_stem.zip" "$ts_stem.dSYM.zip" "$ts_stem.build.json" > "$ts_stem.sha256"
+  shasum -a 256 "$ts_stem.dmg" "$ts_stem.zip" "$ts_stem.dSYM.zip" "$ts_stem.build.json" "${ts_feed_files[@]}" > "$ts_stem.sha256"
 )
 printf 'Packaged %s (%s, %s)\n' "$ts_version" "$ts_arch" "$ts_mode"

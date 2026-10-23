@@ -73,6 +73,11 @@ struct PopoverRoot: View {
                     .foregroundStyle(Theme.text2)
             }
             Spacer()
+            if let version = AppUpdater.shared.availableVersion {
+                Button("新版 \(version)") { AppUpdater.shared.checkForUpdates() }
+                    .font(Typography.caption())
+                    .tint(Theme.accent)
+            }
             Button {
                 showSettings.toggle()
             } label: {

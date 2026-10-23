@@ -14,6 +14,7 @@
 		0FF3E0FA839FECF28EB8CC24 /* OpenCodeFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE50BB8C256A12A148C2A09 /* OpenCodeFixtures.swift */; };
 		127A143656A77A24A4460284 /* SubscriptionSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C04B9D473CEB196DCF315E29 /* SubscriptionSettingsSection.swift */; };
 		1282CC6D0C3C4BEC7FFA53EA /* UsageFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 686BCC7F6DB46CA62B53AD96 /* UsageFixtures.swift */; };
+		138EEEE0176828B8DC61B000 /* AppUpdaterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 122A46CA21A96DC4B0AF38CD /* AppUpdaterTests.swift */; };
 		1C6A1F5907DC27A8A08122F8 /* SnakeGrowthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31BBA45D89B2A244E2814562 /* SnakeGrowthTests.swift */; };
 		1DF9A36E611CDF901F6B655B /* StoreSecurityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4F01B60950456E5C4685119 /* StoreSecurityTests.swift */; };
 		1E02635AA5847E576FFF82B8 /* ViewRenderingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA2C524BB098C9CC7DE2E91 /* ViewRenderingTests.swift */; };
@@ -34,6 +35,7 @@
 		83DD89B0D7FE385DE46F497E /* StadiumGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2CAFD75BF815AAA55DF7B05 /* StadiumGeometry.swift */; };
 		8628AA8CD23DC60FF3052C93 /* PopoverRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0211144FD145C868443A7518 /* PopoverRoot.swift */; };
 		86365C4C49A37A56C0D98EA3 /* ModelUsageGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67018A8244F7AEA45DFA0785 /* ModelUsageGroup.swift */; };
+		8DF0783D41672BBA25B33CC0 /* AppUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31C50D9F2CF04842801957BF /* AppUpdater.swift */; };
 		952DA5C09A337FD1F2A7B822 /* TestHostExit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A833E9C7CBC1E9E842BE6241 /* TestHostExit.swift */; };
 		9D7702DFD7C5CA6B67DB432D /* UsageLogParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 606128566ABAEE91297D9FB6 /* UsageLogParserTests.swift */; };
 		9F6DA07D74156F4BB0DE27C0 /* ModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82073C9C054B191564CE4CA2 /* ModelsTests.swift */; };
@@ -43,12 +45,14 @@
 		B2A9AAD6193ED097BE0DE456 /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8603EC700373E0106230D38 /* Formatters.swift */; };
 		B5412088665BF7F2540646AF /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79996DD3F2E308E0354915B8 /* AppStore.swift */; };
 		C180B224B083F45E81928601 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E13231AAFA5DD6BBE38E16E /* Models.swift */; };
+		CA10D6E48B3CB554A2BC2A02 /* UpdateSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA8E494AAC525D5A6B5D4EAD /* UpdateSettingsSection.swift */; };
 		CBC175850315B1BC68A85673 /* FormattersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164D5DB6C50141A1CB32DA33 /* FormattersTests.swift */; };
 		DD087D148FD7382C44B1FFDC /* TokensPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F0A6C92B66B354876D2D0C1 /* TokensPane.swift */; };
 		DE9338DE6E75A3FA00757E8C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ACAEB3F91A60BB8627F621E /* SettingsView.swift */; };
 		E13820506A4EA2688DE45517 /* PricingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 156AFBE3B2D7D1C3FBAD8DD8 /* PricingTests.swift */; };
 		E7209C2958212C4C5E2DF376 /* SnakeGrowth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E1301BD396D1E5C10FAE657 /* SnakeGrowth.swift */; };
 		EF6B16D9A53F4706CB8299E1 /* SnakePane.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4E6503ED428641EBC3E9DC2 /* SnakePane.swift */; };
+		EFE2419CC3A81424AE7436C8 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = AE00620B40BDCEE6530B0E4B /* Sparkle */; };
 		F0D7395A970CB53ACC48EB3D /* StoreValidation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164484E2E284C2CA4F78D9 /* StoreValidation.swift */; };
 		F2E7CD1D40C69A8B0C5CF22D /* CursorFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9408165031DADD1B315147F0 /* CursorFixtures.swift */; };
 		F370E46162C4548BB018B7C3 /* StoreHarness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A0E8FB9DB5F314F452A16A5 /* StoreHarness.swift */; };
@@ -74,6 +78,7 @@
 		0D4B4732571EE36EAF57AE0B /* OpenCodeUsageImporterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenCodeUsageImporterTests.swift; sourceTree = "<group>"; };
 		0FCA9B5C3C987AF9F893A10C /* ManualEntrySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualEntrySheet.swift; sourceTree = "<group>"; };
 		11FDBA100FB4DDE29C029EAF /* TokenSnake.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TokenSnake.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		122A46CA21A96DC4B0AF38CD /* AppUpdaterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdaterTests.swift; sourceTree = "<group>"; };
 		156AFBE3B2D7D1C3FBAD8DD8 /* PricingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingTests.swift; sourceTree = "<group>"; };
 		164D5DB6C50141A1CB32DA33 /* FormattersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormattersTests.swift; sourceTree = "<group>"; };
 		1B67DA8732D3AEB82782B7FF /* LocalUsageImporterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalUsageImporterTests.swift; sourceTree = "<group>"; };
@@ -82,6 +87,7 @@
 		22F28FF520A3E6CDFD742C94 /* TokenSnakeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSnakeApp.swift; sourceTree = "<group>"; };
 		26979F72760B07D32CACB84E /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		31BBA45D89B2A244E2814562 /* SnakeGrowthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnakeGrowthTests.swift; sourceTree = "<group>"; };
+		31C50D9F2CF04842801957BF /* AppUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdater.swift; sourceTree = "<group>"; };
 		3A0E8FB9DB5F314F452A16A5 /* StoreHarness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreHarness.swift; sourceTree = "<group>"; };
 		3E26780CAE24FD120B65368E /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		41A428FF3E569655173E1B15 /* MenuBarLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarLabel.swift; sourceTree = "<group>"; };
@@ -107,6 +113,7 @@
 		A47992E981CEBDB9DDBB8CD1 /* CursorUsageImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorUsageImporter.swift; sourceTree = "<group>"; };
 		A4E6503ED428641EBC3E9DC2 /* SnakePane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnakePane.swift; sourceTree = "<group>"; };
 		A833E9C7CBC1E9E842BE6241 /* TestHostExit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHostExit.swift; sourceTree = "<group>"; };
+		AA8E494AAC525D5A6B5D4EAD /* UpdateSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateSettingsSection.swift; sourceTree = "<group>"; };
 		B0E9EB82FDD066D0396C36DA /* AppStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStoreTests.swift; sourceTree = "<group>"; };
 		B8603EC700373E0106230D38 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
 		C04B9D473CEB196DCF315E29 /* SubscriptionSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionSettingsSection.swift; sourceTree = "<group>"; };
@@ -116,6 +123,7 @@
 		E5CD5CFC3F6A3D28F16C15DF /* LocalSyncStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalSyncStoreTests.swift; sourceTree = "<group>"; };
 		F0164484E2E284C2CA4F78D9 /* StoreValidation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreValidation.swift; sourceTree = "<group>"; };
 		F041D118F0DB0C6D76037C7D /* CursorUsageImporterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorUsageImporterTests.swift; sourceTree = "<group>"; };
+		F5D58CF874C1F360DD8DE75C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		F7DB926E39FF5ABF690F611A /* LocalUsageImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalUsageImporter.swift; sourceTree = "<group>"; };
 		FBA2C524BB098C9CC7DE2E91 /* ViewRenderingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewRenderingTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -134,6 +142,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				712AC29635608F32283A07C9 /* libsqlite3.tbd in Frameworks */,
+				EFE2419CC3A81424AE7436C8 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,6 +154,7 @@
 			children = (
 				79996DD3F2E308E0354915B8 /* AppStore.swift */,
 				A1355BA6A5749B97118389DD /* Assets.xcassets */,
+				F5D58CF874C1F360DD8DE75C /* Info.plist */,
 				A3DA1271D4D7F5C45760394B /* TokenSnake.entitlements */,
 				22F28FF520A3E6CDFD742C94 /* TokenSnakeApp.swift */,
 				E55D82C5DE83BD9947367568 /* Models */,
@@ -166,6 +176,7 @@
 		6E57B2F6E85E50BCDDDBAFAB /* Support */ = {
 			isa = PBXGroup;
 			children = (
+				31C50D9F2CF04842801957BF /* AppUpdater.swift */,
 				A47992E981CEBDB9DDBB8CD1 /* CursorUsageImporter.swift */,
 				B8603EC700373E0106230D38 /* Formatters.swift */,
 				861761312F6350E25B2786F4 /* LaunchAtLogin.swift */,
@@ -210,6 +221,7 @@
 				D7EA6096209A1AFB8AECC233 /* LocalSyncSection.swift */,
 				6ACAEB3F91A60BB8627F621E /* SettingsView.swift */,
 				C04B9D473CEB196DCF315E29 /* SubscriptionSettingsSection.swift */,
+				AA8E494AAC525D5A6B5D4EAD /* UpdateSettingsSection.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -228,6 +240,7 @@
 			isa = PBXGroup;
 			children = (
 				B0E9EB82FDD066D0396C36DA /* AppStoreTests.swift */,
+				122A46CA21A96DC4B0AF38CD /* AppUpdaterTests.swift */,
 				9408165031DADD1B315147F0 /* CursorFixtures.swift */,
 				F041D118F0DB0C6D76037C7D /* CursorUsageImporterTests.swift */,
 				164D5DB6C50141A1CB32DA33 /* FormattersTests.swift */,
@@ -309,6 +322,7 @@
 			);
 			name = TokenSnake;
 			packageProductDependencies = (
+				AE00620B40BDCEE6530B0E4B /* Sparkle */,
 			);
 			productName = TokenSnake;
 			productReference = 11FDBA100FB4DDE29C029EAF /* TokenSnake.app */;
@@ -356,6 +370,9 @@
 			);
 			mainGroup = 847B14E7FB8483FAD4704938;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				378233DFE95F077495D73D9D /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DFA977656279F78562529B45 /* Products */;
 			projectDirPath = "";
@@ -384,6 +401,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5412088665BF7F2540646AF /* AppStore.swift in Sources */,
+				8DF0783D41672BBA25B33CC0 /* AppUpdater.swift in Sources */,
 				2D0D83C68993197B26A89D0C /* CursorUsageImporter.swift in Sources */,
 				B2A9AAD6193ED097BE0DE456 /* Formatters.swift in Sources */,
 				058F04707129849203A084A2 /* LaunchAtLogin.swift in Sources */,
@@ -408,6 +426,7 @@
 				FCA982D57584475CFAED5510 /* Theme.swift in Sources */,
 				0D10D89A9AEB5E3697FEFF75 /* TokenSnakeApp.swift in Sources */,
 				DD087D148FD7382C44B1FFDC /* TokensPane.swift in Sources */,
+				CA10D6E48B3CB554A2BC2A02 /* UpdateSettingsSection.swift in Sources */,
 				81A19DB2E0267AD8E67078CC /* UsageLogParser.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -417,6 +436,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6F43253CA8E2BC896F9AA5FB /* AppStoreTests.swift in Sources */,
+				138EEEE0176828B8DC61B000 /* AppUpdaterTests.swift in Sources */,
 				F2E7CD1D40C69A8B0C5CF22D /* CursorFixtures.swift in Sources */,
 				80296F1835A2F0467271585B /* CursorUsageImporterTests.swift in Sources */,
 				CBC175850315B1BC68A85673 /* FormattersTests.swift in Sources */,
@@ -542,10 +562,11 @@
 				CODE_SIGN_ENTITLEMENTS = TokenSnake/TokenSnake.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TokenSnake/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TokenSnake;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
@@ -555,12 +576,14 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.3.1;
+				MARKETING_VERSION = 1.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.tokensnake.TokenSnake;
 				PRODUCT_NAME = TokenSnake;
 				SDKROOT = macosx;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_STRICT_CONCURRENCY = complete;
+				TOKENSNAKE_UPDATE_ARCH = arm64;
+				"TOKENSNAKE_UPDATE_ARCH[arch=x86_64]" = x86_64;
 			};
 			name = Release;
 		};
@@ -572,10 +595,11 @@
 				CODE_SIGN_ENTITLEMENTS = TokenSnake/TokenSnake.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TokenSnake/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TokenSnake;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
@@ -585,12 +609,14 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.3.1;
+				MARKETING_VERSION = 1.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.tokensnake.TokenSnake;
 				PRODUCT_NAME = TokenSnake;
 				SDKROOT = macosx;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_STRICT_CONCURRENCY = complete;
+				TOKENSNAKE_UPDATE_ARCH = arm64;
+				"TOKENSNAKE_UPDATE_ARCH[arch=x86_64]" = x86_64;
 			};
 			name = Debug;
 		};
@@ -703,6 +729,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		378233DFE95F077495D73D9D /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = exactVersion;
+				version = 2.10.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AE00620B40BDCEE6530B0E4B /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 378233DFE95F077495D73D9D /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 804A901347CB72CBB925A021 /* Project object */;
 }

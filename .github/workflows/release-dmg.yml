@@ -104,6 +104,7 @@ jobs:
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
           APPLE_API_PRIVATE_KEY_BASE64: ${{ secrets.APPLE_API_PRIVATE_KEY_BASE64 }}
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
         run: bash Scripts/package-ci-release.sh
       - name: Upload release build artifacts
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -114,6 +115,7 @@ jobs:
             dist/*.zip
             dist/*.sha256
             dist/*.build.json
+            dist/appcast-*.xml
           if-no-files-found: error
           retention-days: 14
 
@@ -125,6 +127,11 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Checkout validated release verification scripts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.validate.outputs.sha }}
+          persist-credentials: false
       - name: Download both architecture builds
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
@@ -151,4 +158,13 @@ jobs:
           assert all(m['commit']==os.environ['EXPECTED_SHA'] and m['version']==os.environ['PACKAGE_VERSION'] for m in manifests)
           PY
           (cd dist; for checksum in *.sha256; do sha256sum --check "$checksum"; done)
+          for arch in arm64 x86_64; do
+            label=apple-silicon
+            [[ "$arch" != x86_64 ]] || label=intel
+            build="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["buildNumber"])' "dist/TokenSnake-$PACKAGE_VERSION-$label.build.json")"
+            python3 Scripts/verify-update-feed.py "dist/appcast-$arch.xml" \
+              --dmg "dist/TokenSnake-$PACKAGE_VERSION-$label.dmg" --version "$PACKAGE_VERSION" --arch "$arch" --build "$build"
+          done
           gh release upload "$RELEASE_TAG" dist/*.dmg dist/*.zip dist/*.sha256 dist/*.build.json --clobber
+          # GitHub's latest release URL excludes prereleases, preserving stable routing.
+          gh release upload "$RELEASE_TAG" dist/appcast-*.xml --clobber

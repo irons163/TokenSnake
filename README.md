@@ -31,7 +31,7 @@ Lv.1 從蛇蛋開始，第一筆用量即可孵化。升級門檻為 `1,000,000 
 
 首次讀取外接磁碟或受保護目錄時，macOS 可能顯示存取提示；請在系統提示中允許 TokenSnake 讀取紀錄所在位置。等待系統授權時會維持「正在同步」狀態。重新建置的本機 ad-hoc 版本可能需要重新授權。
 
-同步只保留用量、模型、時間與去重識別，對話內容、工具輸出與認證檔不會存入 TokenSnake。除 Cursor 外，App 沒有網路請求或雲端帳號；Cursor 來源預設關閉，只有在你確認後才會向 `cursor.com` 讀取你自己的用量。
+同步只保留用量、模型、時間與去重識別，對話內容、工具輸出與認證檔不會存入 TokenSnake。用量同步只有 Cursor 來源需要網路；Cursor 預設關閉，只有在你確認後才會向 `cursor.com` 讀取你自己的用量。App 另可向 GitHub 檢查與下載新版，不會傳送用量紀錄，亦未啟用 Sparkle 系統資訊回報。
 
 - Codex 以回應識別碼追蹤逐次用量，並對應舊版累計事件，避免壓縮對話、分叉歷史與封存副本重複計數。
 - Claude Code 以訊息識別碼合併串流與重複內容區塊；輸入包括一般輸入、快取讀取及快取寫入，推理 tokens 不會再次加進輸出。
@@ -109,6 +109,14 @@ open build/TokenSnake.app
 Actions 的 **Release DMG** 可手動試建 Apple Silicon／Intel 的 DMG、ZIP、dSYM 與 SHA-256。發布 GitHub Release 後會自動執行測試、版本核對、Developer ID 簽章與 Apple 公證，再附加兩個架構的產物。正式發布前需設定 Apple repository secrets；手動 `ad-hoc` 試建不需要憑證。
 
 操作與 secrets 清單見 [發布指南](docs/RELEASING.md)。
+
+## App 內更新
+
+1.4.0 起整合 Sparkle 2.10.0。齒輪設定最上方的「App 更新」會顯示目前版本及「檢查更新…」，可在更新視窗下載新版並選擇安裝與重新啟動。預設每小時檢查新版，不自動下載；可關閉自動檢查，或自行啟用自動下載並在結束後安裝。背景發現新版時，主介面標頭會出現新版入口，不搶走其他 App 的焦點。
+
+Apple Silicon／Intel 分別讀取 GitHub 最新穩定 Release 的 `appcast-arm64.xml`／`appcast-x86_64.xml`。Appcast 與 DMG 均以 TokenSnake 專用 Ed25519 金鑰簽署，下載後先驗證再解壓縮；App、Sparkle 輔助程式與 DMG 也使用 Developer ID 簽章並通過 Apple 公證。安裝前及結束 App 時會保存資料，用量與小蛇成長留在原資料目錄。
+
+1.3.1 及更舊版本尚未包含更新器，需先手動安裝 1.4.0 一次，後續版本即可透過 App 內更新。從唯讀 DMG 執行時請先將 App 拖至 Applications。測試模式及 `--data-directory` 隔離驗證模式不會啟動更新器，避免測試替換正在使用的 App。
 
 ## 隔離驗證
 

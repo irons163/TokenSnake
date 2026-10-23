@@ -13,6 +13,7 @@ struct SettingsPane: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
+                section("App 更新") { UpdateSettingsSection() }
                 section("用量來源") { LocalSyncSection() }
 
                 section("選單列顯示") {

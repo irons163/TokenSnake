@@ -11,6 +11,10 @@ settings:
     MACOSX_DEPLOYMENT_TARGET: "14.0"
     ENABLE_HARDENED_RUNTIME: YES
     DEAD_CODE_STRIPPING: YES
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    exactVersion: 2.10.0
 targets:
   TokenSnake:
     type: application
@@ -21,18 +25,34 @@ targets:
           - "**/.DS_Store"
     dependencies:
       - sdk: libsqlite3.tbd
+      - package: Sparkle
+    info:
+      path: TokenSnake/Info.plist
+      properties:
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        SUFeedURL: "https://github.com/irons163/TokenSnake/releases/latest/download/appcast-$(TOKENSNAKE_UPDATE_ARCH).xml"
+        SUPublicEDKey: "p/fa9He4cNgyOyGcznnadkWqt/x1jxJumos9huma504=" # gitleaks:allow -- public update verification key
+        SUEnableAutomaticChecks: true
+        SUAutomaticallyUpdate: false
+        SUScheduledCheckInterval: 3600
+        SUEnableSystemProfiling: false
+        SUVerifyUpdateBeforeExtraction: true
+        SURequireSignedFeed: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.tokensnake.TokenSnake
         PRODUCT_NAME: TokenSnake
-        MARKETING_VERSION: "1.3.1"
-        CURRENT_PROJECT_VERSION: "11"
+        MARKETING_VERSION: "1.4.0"
+        CURRENT_PROJECT_VERSION: "12"
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_LSUIElement: YES
         INFOPLIST_KEY_CFBundleDisplayName: TokenSnake
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
         INFOPLIST_KEY_NSHumanReadableCopyright: "Copyright © 2026 TokenSnake"
         INFOPLIST_KEY_NSPrincipalClass: NSApplication
+        TOKENSNAKE_UPDATE_ARCH: arm64
+        "TOKENSNAKE_UPDATE_ARCH[arch=x86_64]": x86_64
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         COMBINE_HIDPI_IMAGES: YES

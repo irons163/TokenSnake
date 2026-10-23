@@ -44,6 +44,11 @@ final class TokenSnakeDelegate: NSObject, NSApplicationDelegate {
     weak var store: AppStore?
     private var dashboard: NSWindow?
 
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        AppUpdater.shared.beforeInstalling = { [weak self] in self?.store?.flushPersistence() }
+        AppUpdater.shared.start()
+    }
+
     func showDashboard() {
         guard let store else { return }
         if dashboard == nil {

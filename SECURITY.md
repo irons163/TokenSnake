@@ -1,11 +1,11 @@
 # Security and privacy
 
-TokenSnake runs locally on macOS. It has no telemetry, cloud account connection, or
-runtime package download. It reads usage metadata from the configured Codex, Claude
+TokenSnake runs locally on macOS. It has no telemetry or TokenSnake cloud account.
+It reads usage metadata from the configured Codex, Claude
 Code, and OpenCode data directories. Conversation messages and tool output are not
 persisted, and the OpenCode database is opened read-only.
 
-The only network client is the optional **Cursor source**, which is off by default.
+The only usage-sync network client is the optional **Cursor source**, which is off by default.
 It exists because Cursor stopped writing token counts to disk. When you switch it on
 and confirm the prompt, the app reads Cursor's own login token from
 `state.vscdb` (`cursorAuth/accessToken`), sends it to `cursor.com` to fetch your own
@@ -14,6 +14,15 @@ range; no usage counters, prompts, project paths, or conversation content are
 uploaded. Automatic sync queries at most once every five minutes, uses an ephemeral
 URL session with cookies disabled, and keeps the token in memory for the duration of
 the request.
+
+From 1.4.0, the embedded Sparkle updater also contacts GitHub for update feeds and
+App downloads. Automatic checks default to once an hour and can be disabled in
+settings; automatic downloads are off by default. No usage history, account tokens,
+or local project paths are submitted to the update service. Sparkle system profiling
+is disabled. Appcasts and DMGs use a dedicated Ed25519 signing key, and signature
+validation is required before extraction. The App, embedded Sparkle helpers and DMG
+are Developer ID signed and notarized for public releases. The private update key
+is kept in the maintainer's Keychain and GitHub Actions secrets, outside public source.
 
 ## Local data
 
@@ -30,7 +39,7 @@ the request.
 - Snapshot reads are limited to 256 MiB. JSONL is read in chunks, with a 16 MiB
   line limit. Invalid or oversized log lines are skipped. OpenCode messages are
   parsed from `opencode.db` without copying conversation content; only token
-  counters, model, timestamp, and the message identifier are retained. Unreadable
+  counters, model, timestamp, source cost estimate, and the message identifier are retained. Unreadable
   sources are reported without discarding existing usage. Cursor HTTP responses are
   parsed in memory and are not written to disk; only usage counters, model, timestamp,
   and the event identifier are retained.
@@ -50,7 +59,8 @@ data, local paths, account snapshots, and private development-history metadata a
 excluded from the public history. Tests use synthetic fixtures and temporary data.
 
 This is a bounded source and publication review, not a guarantee that every defect
-has been found. The repository has no third-party runtime package dependencies.
+has been found. The only third-party runtime framework is Sparkle, fixed at 2.10.0
+with its package revision recorded in the Xcode project workspace's Package.resolved.
 
 ## Reporting a vulnerability
 

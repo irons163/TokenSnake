@@ -36,8 +36,17 @@ gh workflow run release-dmg.yml --repo irons163/TokenSnake --ref main -f signing
 | `APPLE_API_ISSUER_ID` | 該 API key 的 Issuer ID |
 | `APPLE_API_PRIVATE_KEY_BASE64` | API 私鑰 P8，以 Base64 編碼 |
 | `KEYCHAIN_PASSWORD` | 選填；未設定時每次執行產生臨時密碼 |
+| `SPARKLE_PRIVATE_KEY` | TokenSnake 專用 Ed25519 私鑰，由 Sparkle `generate_keys` 匯出；公鑰須與 App 的 `SUPublicEDKey` 相符 |
 
 設定完成後，可用 `signing_mode=developer-id` 手動試建以驗證簽章及公證，仍只上傳 Actions artifacts。簽章憑證與 API key 僅在建置步驟使用；簽章期間會將臨時 keychain 加入原有使用者搜尋清單，結束時還原清單並移除臨時 keychain 和私鑰檔，不變更預設 keychain。請勿提交 P12、P8、私鑰或真實密碼。
+
+## Sparkle 更新來源
+
+從 1.4.0 起，Developer ID 建置也會產生 `appcast-arm64.xml` 與 `appcast-x86_64.xml`。流程使用已固定版本的 Sparkle 套件內工具，對公證後的 DMG 與 appcast 進行 Ed25519 簽章，核對版本、架構、檔案大小及 build number，加入 SHA-256 清單，再上傳 Release。`releases/latest/download/` 僅導向最新穩定 Release，預發版不會變成穩定更新來源。
+
+正式建置會依序重簽 Sparkle 的 Mach-O、XPC、Updater.app 及框架，確保與主 App 使用相同 Developer ID。更新以遞增的 `CURRENT_PROJECT_VERSION` 比較版本，不能只更新行銷版本。App 必須保留 `SUPublicEDKey`、`SURequireSignedFeed` 與 `SUVerifyUpdateBeforeExtraction`；請勿啟用不安全更新或刪除簽章驗證。
+
+本機私鑰保留在登入 keychain 的 Sparkle 帳戶 `app.tokensnake.TokenSnake`；可使用官方 `generate_keys --account app.tokensnake.TokenSnake -p` 讀取公鑰。匯出私鑰只應用於受保護的備份或 GitHub Secret 設定，不要貼在 issue、Release 或儲存庫。維持此金鑰，後續版本才能更新既有安裝。
 
 ## 本機驗證
 
