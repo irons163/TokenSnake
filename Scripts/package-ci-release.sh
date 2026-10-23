@@ -94,7 +94,7 @@ umask 022
 printf 'Archiving %s\n' "$ts_arch"
 xcodebuild archive -project TokenSnake.xcodeproj -scheme TokenSnake -configuration Release \
   -destination 'generic/platform=macOS' -archivePath "$ts_work/TokenSnake.xcarchive" \
-  -derivedDataPath "$ts_work/DerivedData" ARCHS="$ts_arch" ONLY_ACTIVE_ARCH=NO \
+  -derivedDataPath "$ts_work/DerivedData" ARCHS="$ts_arch" TOKENSNAKE_UPDATE_ARCH="$ts_arch" ONLY_ACTIVE_ARCH=NO \
   DEBUG_INFORMATION_FORMAT=dwarf-with-dsym CODE_SIGNING_ALLOWED=NO -quiet
 
 ts_app="$ts_work/TokenSnake.xcarchive/Products/Applications/TokenSnake.app"
@@ -105,6 +105,18 @@ ts_dsym="$ts_work/TokenSnake.xcarchive/dSYMs/TokenSnake.app.dSYM"
 ts_binary_uuids="$(dwarfdump --uuid "$ts_binary" | awk '{print $2}' | sort)"
 ts_dsym_uuids="$(dwarfdump --uuid "$ts_dsym" | awk '{print $2}' | sort)"
 [[ -n "$ts_binary_uuids" && "$ts_binary_uuids" == "$ts_dsym_uuids" ]] || { echo 'dSYM UUID mismatch' >&2; exit 1; }
+python3 - "$ts_app/Contents/Info.plist" "$ts_arch" <<'PY'
+import base64,plistlib,sys
+from pathlib import Path
+info=plistlib.loads(Path(sys.argv[1]).read_bytes())
+expected='https://github.com/irons163/TokenSnake/releases/latest/download/appcast-'+sys.argv[2]+'.xml'
+if info.get('SUFeedURL')!=expected:
+    raise SystemExit('Embedded update feed does not match archive architecture')
+if len(base64.b64decode(info.get('SUPublicEDKey',''),validate=True))!=32:
+    raise SystemExit('Missing update verification public key')
+if info.get('SURequireSignedFeed') is not True or info.get('SUVerifyUpdateBeforeExtraction') is not True:
+    raise SystemExit('Update signature validation must be enabled')
+PY
 
 notarize() {
   local ts_target="$1" ts_log="$2"

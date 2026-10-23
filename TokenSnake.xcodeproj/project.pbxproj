@@ -562,7 +562,7 @@
 				CODE_SIGN_ENTITLEMENTS = TokenSnake/TokenSnake.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 13;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -576,14 +576,13 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = app.tokensnake.TokenSnake;
 				PRODUCT_NAME = TokenSnake;
 				SDKROOT = macosx;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_STRICT_CONCURRENCY = complete;
-				TOKENSNAKE_UPDATE_ARCH = arm64;
-				"TOKENSNAKE_UPDATE_ARCH[arch=x86_64]" = x86_64;
+				TOKENSNAKE_UPDATE_ARCH = "$(NATIVE_ARCH_ACTUAL)";
 			};
 			name = Release;
 		};
@@ -595,7 +594,7 @@
 				CODE_SIGN_ENTITLEMENTS = TokenSnake/TokenSnake.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 13;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -609,14 +608,13 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = app.tokensnake.TokenSnake;
 				PRODUCT_NAME = TokenSnake;
 				SDKROOT = macosx;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_STRICT_CONCURRENCY = complete;
-				TOKENSNAKE_UPDATE_ARCH = arm64;
-				"TOKENSNAKE_UPDATE_ARCH[arch=x86_64]" = x86_64;
+				TOKENSNAKE_UPDATE_ARCH = "$(NATIVE_ARCH_ACTUAL)";
 			};
 			name = Debug;
 		};
