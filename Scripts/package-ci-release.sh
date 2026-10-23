@@ -182,7 +182,7 @@ result={'version':version,'marketingVersion':info['CFBundleShortVersionString'],
         'notarized':mode=='developer-id','commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()}
 Path(path).write_text(json.dumps(result,indent=2)+'\n')
 PY
-ts_feed_files=()
+ts_checksum_files=("$ts_stem.dmg" "$ts_stem.zip" "$ts_stem.dSYM.zip" "$ts_stem.build.json")
 if [[ "$ts_mode" == developer-id ]]; then
   ts_tools="$(python3 - "$ts_work/DerivedData/SourcePackages/artifacts" <<'PY'
 from pathlib import Path
@@ -195,10 +195,10 @@ PY
   SPARKLE_TOOLS_DIR="$ts_tools" UPDATE_DMG="$ts_dist/$ts_stem.dmg" \
     UPDATE_VERSION="$ts_version" UPDATE_ARCH="$ts_arch" UPDATE_OUTPUT="$ts_dist/appcast-$ts_arch.xml" \
     bash Scripts/generate-update-feed.sh
-  ts_feed_files=("appcast-$ts_arch.xml")
+  ts_checksum_files+=("appcast-$ts_arch.xml")
 fi
 (
   cd "$ts_dist"
-  shasum -a 256 "$ts_stem.dmg" "$ts_stem.zip" "$ts_stem.dSYM.zip" "$ts_stem.build.json" "${ts_feed_files[@]}" > "$ts_stem.sha256"
+  shasum -a 256 "${ts_checksum_files[@]}" > "$ts_stem.sha256"
 )
 printf 'Packaged %s (%s, %s)\n' "$ts_version" "$ts_arch" "$ts_mode"
