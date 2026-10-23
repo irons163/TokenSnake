@@ -23,9 +23,8 @@ struct PricingTests {
             outputTokens: 1_000_000,
             cachedTokens: 200_000
         )
-        let expected = (800_000.0 / 1_000_000) * 1.25
-            + (200_000.0 / 1_000_000) * 0.125
-            + (1_000_000.0 / 1_000_000) * 10
+        // $1.00 uncached input + $0.025 cache reads + $10.00 output.
+        let expected: Double = 11.025
         #expect(abs(Pricing.cost(for: entry) - expected) < 0.0001)
     }
 
