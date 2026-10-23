@@ -78,34 +78,11 @@ Lv.1 從蛇蛋開始，第一筆用量即可孵化。升級門檻為 `1,000,000 
 
 本機同步不包含 ChatGPT 網頁、Claude 網頁的用量或任何帳戶的剩餘訂閱額度查詢；Cursor 需個別開啟，其餘帳號仍可手動管理。
 
-1.3.0 於 2026/10/21 新增 OpenCode 與 Cursor 兩個來源。OpenCode 讀取 `opencode.db`；Cursor 因官方已不再寫入本機 token，改為預設關閉、經使用者確認後連線 `cursor.com` 讀取雲端用量事件。既有來源與紀錄不受影響。
-
 ## 費用
 
-費用為內建靜態 **標準 API 費率的參考估算**，不是訂閱帳單或實際扣款。已處理快取讀取、Claude 的 5 分鐘／1 小時快取寫入，以及已收錄 GPT-5.5／5.6／6 模型的大型提示門檻；不包含 Fast／Ultrafast、區域加價、工具費用或帳戶折扣。
+Codex、Claude Code 依內建 API 費率估算；OpenCode 優先採用來源提供的估算；Cursor 使用來源回傳的帳單費用。API 估算不等同訂閱費或實際扣款，價目表隨 App 版本更新。
 
-「費率未收錄」表示 App 的內建價目表尚未對應該模型，不代表供應商沒有公開價格，也不代表免費。這些紀錄仍會計入 tokens，總覽列出待補費率筆數與已知估算；選單列金額後的 `+` 表示總額尚不完整。模型名稱不會被猜成其他模型。參考價目表位於 `TokenSnake/Models/Pricing.swift`。更新價目表後會直接重新計算既有紀錄，不需要重新匯入。
-
-Cursor 事件會帶回 Cursor 帳單的實際費用（`totalCents`），App 直接顯示該金額，不用內建費率推估；若 Cursor 未回傳費用才顯示「費率未收錄」。
-
-OpenCode 訊息中的 `cost` 是來源端費用估算，App 會直接保留，顯示為「OpenCode 估算」，避免將 OpenCode Go、其他網關或不同模型的費用猜成直連 API 的價格。明確回傳的 `0` 會保留為零元估算，不等同保證供應商免費；只有缺少或無效的費用才回頭查內建價目表。這不需要額外連線或取得 OpenCode 帳號。
-
-1.3.1 修正 OpenCode 匯入漏讀 `cost` 的問題。升級後會自動補讀既有 OpenCode 訊息一次，補齊 DeepSeek、GLM、Qwen、Kimi 等模型的來源估算；紀錄識別、已隱藏項目與小蛇成長維持原有去重規則。
-
-Codex／Claude 新增費率核對於 2026/10/14：[GPT-6.1 Sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol)、[GPT-6 Astra](https://developers.openai.com/api/docs/models/gpt-6-astra)、[Claude 快取費率](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)。其餘內建範本需按實際使用情況更新。
-
-1.1.2 於 2026/10/15 補齊目前紀錄中缺少的四個模型（USD／百萬 tokens）：
-
-| 模型／官方來源 | 輸入 | 快取讀取 | 輸出 |
-| --- | ---: | ---: | ---: |
-| [GPT-5.5](https://developers.openai.com/api/docs/models/gpt-5.5) | $5.00 | $0.50 | $30.00 |
-| [GPT-5.6 Sol](https://developers.openai.com/api/docs/models/gpt-5.6-sol) | $4.00 | $0.40 | $20.00 |
-| [GPT-5.6 Terra](https://developers.openai.com/api/docs/models/gpt-5.6-terra) | $2.00 | $0.20 | $12.00 |
-| [GPT-5.6 Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna) | $0.20 | $0.02 | $1.20 |
-
-以上模型估算時以每次回應的輸入套用 272k 門檻，超過時使用 2 倍輸入／快取讀取及 1.5 倍輸出費率。GPT-5.6 快取寫入為輸入費率的 1.25 倍。Sol 採官方目前促銷價，官方保證至少適用至 2026/11/21；內建費率需要隨官方調整而更新。歷史紀錄同樣按此價目表估算，並非還原歷史帳單。
-
-1.2.2 於 2026/10/21 補上 [Claude Opus 5.5](https://platform.claude.com/docs/en/models/opus-5-5/overview)（`claude-opus-5-5`）：每百萬 tokens 的標準輸入 $4、輸出 $20、快取讀取 $0.20、5 分鐘快取寫入 $5、1 小時快取寫入 $8。套用原有紀錄即可估算，不需重新匯入。App 的價目表隨版本更新，尚未自動從官方網站更新。
+「費率未收錄」代表目前缺少可用的計價資料，不代表免費；tokens 仍會完整統計。選單列金額後的 `+` 表示總額尚不完整。
 
 ## 資料與備份
 
