@@ -7,7 +7,8 @@
 <p align="center">在 macOS 選單列追蹤 AI 用量，讓每一筆 tokens 餵養小蛇。</p>
 
 <p align="center">
-  <a href="https://github.com/irons163/TokenSnake/releases/latest">下載最新版</a> ·
+  <a href="https://github.com/irons163/TokenSnake/releases/latest/download/TokenSnake-apple-silicon.dmg">下載 DMG（Apple Silicon）</a> ·
+  <a href="https://github.com/irons163/TokenSnake/releases/latest/download/TokenSnake-intel.dmg">下載 DMG（Intel）</a> ·
   <a href="SECURITY.md">隱私與安全</a>
 </p>
 
@@ -23,12 +24,12 @@ macOS 選單列上的 AI 用量儀表板，以 SwiftUI 製作。自動讀取本�
 
 需要 **macOS 14 或更新版本**，支援 Apple Silicon 與 Intel。直接安裝 Release 版本即可使用。
 
-1. 前往 [下載最新版](https://github.com/irons163/TokenSnake/releases/latest)，依 Mac 晶片選擇 DMG：
+1. 依 Mac 晶片下載 DMG：
 
    | Mac 晶片 | 下載檔案 |
    | --- | --- |
-   | Apple Silicon（M 系列） | `TokenSnake-<版本>-apple-silicon.dmg` |
-   | Intel | `TokenSnake-<版本>-intel.dmg` |
+   | Apple Silicon（M 系列） | [下載 DMG](https://github.com/irons163/TokenSnake/releases/latest/download/TokenSnake-apple-silicon.dmg) |
+   | Intel | [下載 DMG](https://github.com/irons163/TokenSnake/releases/latest/download/TokenSnake-intel.dmg) |
 
 2. 開啟 DMG，將 `TokenSnake.app` 拖進 **Applications**。
 3. 開啟 App，點選選單列的小蛇即可查看用量。App 不會出現在 Dock。

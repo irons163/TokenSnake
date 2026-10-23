@@ -165,6 +165,11 @@ jobs:
             python3 Scripts/verify-update-feed.py "dist/appcast-$arch.xml" \
               --dmg "dist/TokenSnake-$PACKAGE_VERSION-$label.dmg" --version "$PACKAGE_VERSION" --arch "$arch" --build "$build"
           done
+          # Stable asset names keep README downloads on the latest release.
+          for label in apple-silicon intel; do
+            cp "dist/TokenSnake-$PACKAGE_VERSION-$label.dmg" "dist/TokenSnake-$label.dmg"
+          done
+          (cd dist; sha256sum TokenSnake-apple-silicon.dmg TokenSnake-intel.dmg > TokenSnake-downloads.sha256)
           gh release upload "$RELEASE_TAG" dist/*.dmg dist/*.zip dist/*.sha256 dist/*.build.json --clobber
           # GitHub's latest release URL excludes prereleases, preserving stable routing.
           gh release upload "$RELEASE_TAG" dist/appcast-*.xml --clobber
