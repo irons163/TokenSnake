@@ -119,14 +119,28 @@ if result.get('status') != 'Accepted':
 PY
 }
 
+staple_and_validate() {
+  local ts_target="$1" ts_attempt
+  for ts_attempt in 1 2 3; do
+    if xcrun stapler staple "$ts_target" && xcrun stapler validate "$ts_target"; then
+      return 0
+    fi
+    if [[ "$ts_attempt" -lt 3 ]]; then
+      echo 'Retrying Apple notarization ticket download and validation'
+      sleep "$((ts_attempt * 5))"
+    fi
+  done
+  echo 'Could not staple and validate the Apple notarization ticket after three attempts' >&2
+  return 1
+}
+
 if [[ "$ts_mode" == developer-id ]]; then
   echo 'Signing and notarizing application'
   codesign --force --keychain "$ts_keychain" --sign "$ts_identity" --timestamp --options runtime \
     --entitlements TokenSnake/TokenSnake.entitlements "$ts_app"
   ditto -c -k --sequesterRsrc --keepParent "$ts_app" "$ts_work/notary-app.zip"
   notarize "$ts_work/notary-app.zip" "$ts_work/notary-app.json"
-  xcrun stapler staple "$ts_app"
-  xcrun stapler validate "$ts_app"
+  staple_and_validate "$ts_app"
   spctl --assess --type execute "$ts_app"
 else
   codesign --force --sign - --options runtime "$ts_app"
@@ -142,8 +156,7 @@ if [[ "$ts_mode" == developer-id ]]; then
   echo 'Signing and notarizing disk image'
   codesign --force --keychain "$ts_keychain" --sign "$ts_identity" --timestamp "$ts_dist/$ts_stem.dmg"
   notarize "$ts_dist/$ts_stem.dmg" "$ts_work/notary-dmg.json"
-  xcrun stapler staple "$ts_dist/$ts_stem.dmg"
-  xcrun stapler validate "$ts_dist/$ts_stem.dmg"
+  staple_and_validate "$ts_dist/$ts_stem.dmg"
 fi
 ditto -c -k --sequesterRsrc --keepParent "$ts_app" "$ts_dist/$ts_stem.zip"
 ditto -c -k --sequesterRsrc --keepParent "$ts_dsym" "$ts_dist/$ts_stem.dSYM.zip"

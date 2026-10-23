@@ -21,7 +21,7 @@ gh workflow run release-dmg.yml --repo irons163/TokenSnake --ref main -f signing
 3. Release 的 `published` 事件自動執行流程。正式發布一律使用 Developer ID 簽章與 Apple 公證；憑證不足會停止，不會上傳未公證的測試版本。
 4. 兩個架構均通過後，自動核對 tag 指向的 commit、建置資訊與 SHA-256，再把產物附加到該 Release。重跑會覆蓋同名 assets。
 
-版本不符、測試失敗、架構或 dSYM UUID 不符、簽章失敗、公證未獲 Accepted，都會阻止 assets 上傳。發布流程不會自動 bump 版本或建立下一個 Release。
+版本不符、測試失敗、架構或 dSYM UUID 不符、簽章失敗、公證未獲 Accepted，都會阻止 assets 上傳。公證核准後，票證下載及驗證遇到失敗時最多嘗試三次，仍失敗就停止。發布流程不會自動 bump 版本或建立下一個 Release。
 
 ## Apple 憑證設定
 
