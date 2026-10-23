@@ -109,14 +109,16 @@ struct UsageLogParserTests {
     @Test func cacheWritesUseTheirOwnRates() {
         let entry = TokenEntry(provider: .anthropic, model: "Claude Sonnet 4", inputTokens: 1_000_000,
                                outputTokens: 100_000, cachedTokens: 500_000, cacheWriteTokens: 200_000, cacheWrite1hTokens: 50_000)
-        let expected = 0.3 * 3 + 0.5 * 0.3 + 0.15 * 3 * 1.25 + 0.05 * 3 * 2 + 0.1 * 15
+        // $0.90 input + $0.15 reads + $0.5625 short writes + $0.30 long writes + $1.50 output.
+        let expected: Double = 3.4125
         #expect(abs((Pricing.estimatedCost(for: entry) ?? 0) - expected) < 0.000001)
     }
 
     @Test func solCacheWriteAndLongContextRates() {
         let entry = TokenEntry(provider: .openai, model: "gpt-6.1-sol", inputTokens: 300_000,
                                outputTokens: 10_000, cachedTokens: 100_000, cacheWriteTokens: 50_000)
-        let expected = (0.15 * 2 + 0.1 * 0.1 + 0.05 * 2.5) * 2 + 0.01 * 10 * 1.5
+        // Long-context input/cache total $0.87, plus $0.15 output.
+        let expected: Double = 1.02
         #expect(abs((Pricing.estimatedCost(for: entry) ?? 0) - expected) < 0.000001)
     }
 }
