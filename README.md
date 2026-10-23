@@ -8,7 +8,6 @@
 
 <p align="center">
   <a href="https://github.com/irons163/TokenSnake/releases/latest">下載最新版</a> ·
-  <a href="docs/RELEASING.md">發布指南</a> ·
   <a href="SECURITY.md">隱私與安全</a>
 </p>
 
@@ -35,7 +34,7 @@ macOS 選單列上的 AI 用量儀表板，以 SwiftUI 製作。自動讀取本�
 3. 開啟 App，點選選單列的小蛇即可查看用量。App 不會出現在 Dock。
 4. 若紀錄位於外接磁碟或受保護目錄，依 macOS 提示允許讀取，或到齒輪設定選擇紀錄目錄。
 
-正式 Release 已使用 Developer ID 簽章並通過 Apple 公證。安裝後可從齒輪設定的「App 更新」檢查新版；預設每小時自動檢查，不自動下載。詳見 [App 內更新](#app-內更新)。
+正式 Release 已使用 Developer ID 簽章並通過 Apple 公證。安裝後可從齒輪設定的「App 更新」檢查新版；預設每小時自動檢查，不自動下載。
 
 ## 功能
 
@@ -139,33 +138,3 @@ open build/TokenSnake.app
 ```
 
 產物使用 ad-hoc 簽章，供本機使用；對外散布時需自行使用 Developer ID 簽章與 notarization。
-
-## GitHub Release
-
-Actions 的 **Release DMG** 可手動試建 Apple Silicon／Intel 的 DMG、ZIP、dSYM 與 SHA-256。發布 GitHub Release 後會自動執行測試、版本核對、Developer ID 簽章與 Apple 公證，再附加兩個架構的產物。正式發布前需設定 Apple repository secrets；手動 `ad-hoc` 試建不需要憑證。
-
-操作與 secrets 清單見 [發布指南](docs/RELEASING.md)。
-
-## App 內更新
-
-1.4.0 起整合 Sparkle 2.10.0。齒輪設定最上方的「App 更新」會顯示目前版本及「檢查更新…」，可在更新視窗下載新版並選擇安裝與重新啟動。預設每小時檢查新版，不自動下載；可關閉自動檢查，或自行啟用自動下載並在結束後安裝。背景發現新版時，主介面標頭會出現新版入口，不搶走其他 App 的焦點。
-
-Apple Silicon／Intel 分別讀取 GitHub 最新穩定 Release 的 `appcast-arm64.xml`／`appcast-x86_64.xml`。Appcast 與 DMG 均以 TokenSnake 專用 Ed25519 金鑰簽署，下載後先驗證再解壓縮；App、Sparkle 輔助程式與 DMG 也使用 Developer ID 簽章並通過 Apple 公證。安裝前及結束 App 時會保存資料，用量與小蛇成長留在原資料目錄。
-
-1.3.1 及更舊版本尚未包含更新器，需先手動安裝最新版本，後續即可透過 App 內更新。從唯讀 DMG 執行時請先將 App 拖至 Applications。測試模式及 `--data-directory` 隔離驗證模式不會啟動更新器，避免測試替換正在使用的 App。
-
-1.4.1 補齊 Intel 套件內的預設更新來源標記，並在發布前強制核對每個架構的 feed、公鑰及必要驗證設定；建議直接安裝最新版本。
-
-## 隔離驗證
-
-可讓 App 在指定資料目錄執行，並直接顯示儀表板，方便驗證而不改動既有資料：
-
-```bash
-open -n build/TokenSnake.app --args \
-  --data-directory /tmp/tokensnake-verification --show-dashboard
-python3 Scripts/VerifyUsageSnapshot.py /tmp/tokensnake-verification/store.json
-```
-
-`--show-dashboard` 會額外開啟獨立驗證視窗，與選單列面板同時存在。驗證請使用隔離資料目錄，完成後結束驗證 App；正式使用以 `open build/TokenSnake.app` 啟動，不附加此參數。
-
-核對腳本依快照已提交的讀取游標，獨立重新加總 Codex、Claude Code 與 OpenCode 的回應數與輸入、輸出、快取讀取及寫入 tokens；只輸出總數。請使用尚未隱藏匯入紀錄的新快照。
