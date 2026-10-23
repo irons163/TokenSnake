@@ -100,6 +100,12 @@ open build/TokenSnake.app
 
 產物使用 ad-hoc 簽章，供本機使用；對外散布時需自行使用 Developer ID 簽章與 notarization。
 
+## GitHub Release
+
+Actions 的 **Release DMG** 可手動試建 Apple Silicon／Intel 的 DMG、ZIP、dSYM 與 SHA-256。發布 GitHub Release 後會自動執行測試、版本核對、Developer ID 簽章與 Apple 公證，再附加兩個架構的產物。正式發布前需設定 Apple repository secrets；手動 `ad-hoc` 試建不需要憑證。
+
+操作與 secrets 清單見 [發布指南](docs/RELEASING.md)。
+
 ## 隔離驗證
 
 可讓 App 在指定資料目錄執行，並直接顯示儀表板，方便驗證而不改動既有資料：
