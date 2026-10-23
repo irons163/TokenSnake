@@ -30,7 +30,16 @@ ts_work="$ts_root/build/ci-release/$ts_arch"
 ts_dist="$ts_root/dist"
 ts_private="$(mktemp -d "${RUNNER_TEMP:-${TMPDIR:-/tmp}}/tokensnake-signing.XXXXXX")"
 ts_keychain="$ts_private/build.keychain-db"
+ts_search_list="$ts_private/keychain-search-list.json"
 cleanup() {
+  if [[ -f "$ts_search_list" ]]; then
+    python3 - "$ts_search_list" <<'PY' || echo 'Warning: could not restore the original keychain search list' >&2
+import json,subprocess,sys
+from pathlib import Path
+paths=json.loads(Path(sys.argv[1]).read_text())
+subprocess.run(['security','list-keychains','-d','user','-s',*paths],check=True)
+PY
+  fi
   if [[ -f "$ts_keychain" ]]; then security delete-keychain "$ts_keychain" >/dev/null 2>&1 || true; fi
   rm -rf "$ts_private"
 }
@@ -39,6 +48,7 @@ rm -rf "$ts_work"
 mkdir -p "$ts_work/staging" "$ts_dist"
 
 if [[ "$ts_mode" == developer-id ]]; then
+  echo 'Preparing temporary signing keychain'
   python3 - "$ts_private" <<'PY'
 import base64
 import os
@@ -49,6 +59,12 @@ for name, secret in [('certificate.p12', 'APPLE_CERTIFICATE_P12_BASE64'), ('nota
     with (Path(sys.argv[1]) / name).open('xb') as output:
         output.write(data)
 PY
+  python3 - "$ts_search_list" <<'PY'
+import json,shlex,subprocess,sys
+from pathlib import Path
+paths=shlex.split(subprocess.check_output(['security','list-keychains','-d','user'],text=True))
+Path(sys.argv[1]).write_text(json.dumps(paths))
+PY
   ts_keychain_password="${KEYCHAIN_PASSWORD:-$(openssl rand -base64 32)}"
   security create-keychain -p "$ts_keychain_password" "$ts_keychain"
   security set-keychain-settings -lut 21600 "$ts_keychain"
@@ -56,6 +72,14 @@ PY
   security import "$ts_private/certificate.p12" -P "$APPLE_CERTIFICATE_PASSWORD" \
     -T /usr/bin/codesign -T /usr/bin/security -t cert -f pkcs12 -k "$ts_keychain" >/dev/null
   security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$ts_keychain_password" "$ts_keychain" >/dev/null
+  # codesign needs the identity's keychain on the search list even with --keychain.
+  # Preserve the user's existing entries and restore them on every exit path.
+  python3 - "$ts_search_list" "$ts_keychain" <<'PY'
+import json,subprocess,sys
+from pathlib import Path
+paths=json.loads(Path(sys.argv[1]).read_text())
+subprocess.run(['security','list-keychains','-d','user','-s',sys.argv[2],*paths],check=True)
+PY
   ts_identity="$(security find-identity -v -p codesigning "$ts_keychain" | python3 -c '
 import os,re,sys
 pattern = r"\s+\d+\)\s+([A-Fa-f0-9]{40})\s+\"Developer ID Application: .* \(" + re.escape(os.environ["APPLE_TEAM_ID"]) + r"\)\""
@@ -67,6 +91,7 @@ fi
 
 # Signing material stays in the private directory; app bundles need normal install permissions.
 umask 022
+printf 'Archiving %s\n' "$ts_arch"
 xcodebuild archive -project TokenSnake.xcodeproj -scheme TokenSnake -configuration Release \
   -destination 'generic/platform=macOS' -archivePath "$ts_work/TokenSnake.xcarchive" \
   -derivedDataPath "$ts_work/DerivedData" ARCHS="$ts_arch" ONLY_ACTIVE_ARCH=NO \
@@ -95,6 +120,7 @@ PY
 }
 
 if [[ "$ts_mode" == developer-id ]]; then
+  echo 'Signing and notarizing application'
   codesign --force --keychain "$ts_keychain" --sign "$ts_identity" --timestamp --options runtime \
     --entitlements TokenSnake/TokenSnake.entitlements "$ts_app"
   ditto -c -k --sequesterRsrc --keepParent "$ts_app" "$ts_work/notary-app.zip"
@@ -108,10 +134,12 @@ fi
 codesign --verify --deep --strict "$ts_app"
 
 ts_stem="TokenSnake-$ts_version-$ts_label"
+echo 'Creating distribution packages'
 ditto "$ts_app" "$ts_work/staging/TokenSnake.app"
 ln -s /Applications "$ts_work/staging/Applications"
 hdiutil create -volname TokenSnake -srcfolder "$ts_work/staging" -format UDZO -ov "$ts_dist/$ts_stem.dmg"
 if [[ "$ts_mode" == developer-id ]]; then
+  echo 'Signing and notarizing disk image'
   codesign --force --keychain "$ts_keychain" --sign "$ts_identity" --timestamp "$ts_dist/$ts_stem.dmg"
   notarize "$ts_dist/$ts_stem.dmg" "$ts_work/notary-dmg.json"
   xcrun stapler staple "$ts_dist/$ts_stem.dmg"

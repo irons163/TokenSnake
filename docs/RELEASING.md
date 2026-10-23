@@ -37,7 +37,7 @@ gh workflow run release-dmg.yml --repo irons163/TokenSnake --ref main -f signing
 | `APPLE_API_PRIVATE_KEY_BASE64` | API 私鑰 P8，以 Base64 編碼 |
 | `KEYCHAIN_PASSWORD` | 選填；未設定時每次執行產生臨時密碼 |
 
-設定完成後，可用 `signing_mode=developer-id` 手動試建以驗證簽章及公證，仍只上傳 Actions artifacts。簽章憑證與 API key 僅在建置步驟使用；臨時 keychain 和私鑰檔由 script 的退出清理移除。請勿提交 P12、P8、私鑰或真實密碼。
+設定完成後，可用 `signing_mode=developer-id` 手動試建以驗證簽章及公證，仍只上傳 Actions artifacts。簽章憑證與 API key 僅在建置步驟使用；簽章期間會將臨時 keychain 加入原有使用者搜尋清單，結束時還原清單並移除臨時 keychain 和私鑰檔，不變更預設 keychain。請勿提交 P12、P8、私鑰或真實密碼。
 
 ## 本機驗證
 
