@@ -17,6 +17,9 @@ struct ModelUsageGroup: Identifiable {
     var costLabel: String {
         if unpricedCount == entries.count { return Pricing.missingRateLabel }
         let cost = Formatters.currency(knownCost)
+        if entries.allSatisfy({ $0.source == .opencode && $0.reportedCost != nil }) {
+            return "\(cost) OpenCode 估算"
+        }
         return unpricedCount > 0 ? "已知 \(cost) · \(unpricedCount) 筆待補費率" : "\(cost) 估算"
     }
 

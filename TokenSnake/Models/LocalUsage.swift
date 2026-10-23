@@ -157,6 +157,8 @@ nonisolated struct OpenCodeCheckpoint: Codable, Equatable, Sendable {
     var databaseID = ""
     var size: UInt64 = 0
     var updatedThrough: Int64 = 0
+    // Optional so snapshots written before cost import still decode unchanged.
+    var costImportVersion: Int?
 }
 
 nonisolated struct CursorCheckpoint: Codable, Equatable, Sendable {

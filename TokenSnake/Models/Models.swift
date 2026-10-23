@@ -106,8 +106,7 @@ nonisolated struct TokenEntry: Identifiable, Codable, Hashable, Sendable {
     var importAliases: [String]?
     var cacheWriteTokens: Int?
     var cacheWrite1hTokens: Int?
-    // Provider-reported cost in USD, used when the source returns billing data
-    // (Cursor dashboard events) instead of an estimated API rate.
+    // Source-reported USD cost: Cursor billing data or OpenCode's usage estimate.
     var reportedCost: Double?
 
     var totalTokens: Int { inputTokens + outputTokens }

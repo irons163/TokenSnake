@@ -35,7 +35,7 @@ Lv.1 從蛇蛋開始，第一筆用量即可孵化。升級門檻為 `1,000,000 
 
 - Codex 以回應識別碼追蹤逐次用量，並對應舊版累計事件，避免壓縮對話、分叉歷史與封存副本重複計數。
 - Claude Code 以訊息識別碼合併串流與重複內容區塊；輸入包括一般輸入、快取讀取及快取寫入，推理 tokens 不會再次加進輸出。
-- OpenCode 以資料庫中的訊息識別碼合併串流更新；輸入包括一般輸入、快取讀取及快取寫入，推理 tokens 計入輸出。供應商依 OpenCode 的 provider 與模型名稱對應，未收錄的模型仍會計入 tokens。
+- OpenCode 以資料庫中的訊息識別碼合併串流更新；輸入包括一般輸入、快取讀取及快取寫入，推理 tokens 計入輸出。供應商依 OpenCode 的 provider 與模型名稱對應；費用優先保留訊息中的 `cost` 美元估算，模型不在 TokenSnake 價目表也可顯示。
 - Cursor 已不再把 token 寫進本機資料庫，因此改用 Cursor 儀表板自己的用量介面：讀取本機 `state.vscdb` 的登入憑證，只送出日期範圍，取回近 90 天的用量事件，並以事件識別碼去重。開啟時會先顯示提示；自動同步每 5 分鐘最多查詢一次，「立即同步」可手動重試。
 - 讀取游標與用量一起保存，重啟後接續讀取。尚未寫完的一行會等下一次掃描；檔案截斷或替換後重新解析並去重。
 - 刪除匯入紀錄會將它隱藏，後續同步不會恢復；「重新匯入」會恢復隱藏項目。停用來源會保留已匯入的歷史。
@@ -52,6 +52,10 @@ Lv.1 從蛇蛋開始，第一筆用量即可孵化。升級門檻為 `1,000,000 
 「費率未收錄」表示 App 的內建價目表尚未對應該模型，不代表供應商沒有公開價格，也不代表免費。這些紀錄仍會計入 tokens，總覽列出待補費率筆數與已知估算；選單列金額後的 `+` 表示總額尚不完整。模型名稱不會被猜成其他模型。參考價目表位於 `TokenSnake/Models/Pricing.swift`。更新價目表後會直接重新計算既有紀錄，不需要重新匯入。
 
 Cursor 事件會帶回 Cursor 帳單的實際費用（`totalCents`），App 直接顯示該金額，不用內建費率推估；若 Cursor 未回傳費用才顯示「費率未收錄」。
+
+OpenCode 訊息中的 `cost` 是來源端費用估算，App 會直接保留，顯示為「OpenCode 估算」，避免將 OpenCode Go、其他網關或不同模型的費用猜成直連 API 的價格。明確回傳的 `0` 會保留為零元估算，不等同保證供應商免費；只有缺少或無效的費用才回頭查內建價目表。這不需要額外連線或取得 OpenCode 帳號。
+
+1.3.1 修正 OpenCode 匯入漏讀 `cost` 的問題。升級後會自動補讀既有 OpenCode 訊息一次，補齊 DeepSeek、GLM、Qwen、Kimi 等模型的來源估算；紀錄識別、已隱藏項目與小蛇成長維持原有去重規則。
 
 Codex／Claude 新增費率核對於 2026/10/14：[GPT-6.1 Sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol)、[GPT-6 Astra](https://developers.openai.com/api/docs/models/gpt-6-astra)、[Claude 快取費率](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)。其餘內建範本需按實際使用情況更新。
 

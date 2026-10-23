@@ -1,4 +1,5 @@
 import Foundation
+import CoreFoundation
 import SQLite3
 
 nonisolated enum OpenCodeUsageImporter {
@@ -8,6 +9,7 @@ nonisolated enum OpenCodeUsageImporter {
     static let overlapMilliseconds: Int64 = 15 * 60 * 1_000
     static let maximumRows = 20_000
     static let maximumMessageBytes = 16 * 1_024 * 1_024
+    static let costImportVersion = 1
 
     struct Scan {
         var entries: [TokenEntry] = []
@@ -30,9 +32,13 @@ nonisolated enum OpenCodeUsageImporter {
         let size = (attributes[.size] as? NSNumber)?.uint64Value ?? 0
         let fileID = "\(attributes[.systemNumber] ?? ""):\(attributes[.systemFileNumber] ?? "")"
         var checkpoint = previous ?? OpenCodeCheckpoint()
-        if checkpoint.databaseID != fileID || size < checkpoint.size {
+        // Earlier versions skipped OpenCode's cost field. Backfill old messages
+        // once without clearing hidden entries or changing their import identities.
+        if checkpoint.databaseID != fileID || size < checkpoint.size
+            || checkpoint.costImportVersion != costImportVersion {
             checkpoint = OpenCodeCheckpoint()
         }
+        checkpoint.costImportVersion = costImportVersion
         checkpoint.databaseID = fileID
         checkpoint.size = size
         var scan = Scan(checkpoint: checkpoint)
@@ -121,8 +127,15 @@ nonisolated enum OpenCodeMessageParser {
         )
         let model = record["modelID"] as? String ?? ""
         let provider = provider(for: record["providerID"] as? String ?? "", model: model)
-        return UsageLogParser.entry(key: "opencode:\(messageID)", source: .opencode, model: model,
-                                    date: date, usage: usage, provider: provider)
+        guard var entry = UsageLogParser.entry(key: "opencode:\(messageID)", source: .opencode, model: model,
+                                               date: date, usage: usage, provider: provider) else { return nil }
+        // This is OpenCode's USD estimate for the selected gateway/model, not a
+        // provider invoice. Preserve explicit zero; missing/invalid costs stay nil.
+        if let number = record["cost"] as? NSNumber, CFGetTypeID(number) != CFBooleanGetTypeID(),
+           number.doubleValue.isFinite, (0...1_000_000_000_000).contains(number.doubleValue) {
+            entry.reportedCost = number.doubleValue
+        }
+        return entry
     }
 
     static func provider(for identifier: String, model: String) -> AIProvider {

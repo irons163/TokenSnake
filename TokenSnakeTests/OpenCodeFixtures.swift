@@ -13,13 +13,14 @@ enum OpenCodeFixtures {
         var reasoning: Int
         var cacheRead: Int
         var cacheWrite: Int
+        var cost: Double?
         var createdAt: Int64
         var updatedAt: Int64
 
         init(id: String, role: String = "assistant", provider: String = "anthropic",
              model: String = "claude-sonnet-4-20250514", input: Int = 0, output: Int = 0,
              reasoning: Int = 0, cacheRead: Int = 0, cacheWrite: Int = 0,
-             createdAt: Int64, updatedAt: Int64? = nil) {
+             cost: Double? = nil, createdAt: Int64, updatedAt: Int64? = nil) {
             self.id = id
             self.role = role
             self.provider = provider
@@ -29,6 +30,7 @@ enum OpenCodeFixtures {
             self.reasoning = reasoning
             self.cacheRead = cacheRead
             self.cacheWrite = cacheWrite
+            self.cost = cost
             self.createdAt = createdAt
             self.updatedAt = updatedAt ?? createdAt
         }
@@ -112,7 +114,7 @@ enum OpenCodeFixtures {
     }
 
     private static func encoded(_ message: Message) throws -> String {
-        let object: [String: Any] = [
+        var object: [String: Any] = [
             "id": message.id,
             "role": message.role,
             "providerID": message.provider,
@@ -124,6 +126,7 @@ enum OpenCodeFixtures {
                 "cache": ["read": message.cacheRead, "write": message.cacheWrite]
             ]
         ]
+        if let cost = message.cost { object["cost"] = cost }
         return String(decoding: try JSONSerialization.data(withJSONObject: object, options: [.sortedKeys]), as: UTF8.self)
     }
 
